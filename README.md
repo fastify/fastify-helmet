@@ -1,5 +1,7 @@
 # fastify-helmet
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/fastify/fastify-helmet.svg)](https://greenkeeper.io/)
+
 Important security headers for Fastify. It is a port from express of
 [helmet](http://npm.im/helmet)
 
