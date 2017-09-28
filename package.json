@@ -29,7 +29,7 @@
   "devDependencies": {
     "fastify": "^0.26.0",
     "pre-commit": "^1.2.2",
-    "shot": "^3.4.2",
+    "shot": "^4.0.1",
     "snazzy": "^7.0.0",
     "standard": "^10.0.2",
     "tap": "^10.7.0"
