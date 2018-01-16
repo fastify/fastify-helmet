@@ -39,4 +39,7 @@ module.exports = fp(function (fastify, opts, next) {
   })
 
   next()
+}, {
+  fastify: '>=0.39.1',
+  name: 'fastify-helmet'
 })
