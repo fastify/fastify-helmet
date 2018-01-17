@@ -16,7 +16,8 @@ test('set the default headers', (t) => {
   fastify.inject({
     method: 'GET',
     url: '/'
-  }, (res) => {
+  }, (err, res) => {
+    t.error(err)
     const expected = {
       'x-dns-prefetch-control': 'off',
       'x-frame-options': 'SAMEORIGIN',

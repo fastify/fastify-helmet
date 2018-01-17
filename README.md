@@ -17,7 +17,11 @@ Simply require this plugin, and the basic security headers will be set.
 const fastify = require('fastify')()
 const helmet = require('fastify-helmet')
 
-fastify.register(helmet)
+fastify.register(
+  helmet,
+  // Example of passing an option to x-powered-by middleware
+  { hidePoweredBy: { setTo: 'PHP 4.2.0' } }
+)
 
 fastify.listen(3000, err => {
   if (err) throw err

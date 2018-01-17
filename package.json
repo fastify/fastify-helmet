@@ -27,11 +27,11 @@
   },
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
-    "fastify": "^0.30.2",
+    "fastify": "^0.39.1",
     "pre-commit": "^1.2.2",
     "snazzy": "^7.0.0",
     "standard": "^10.0.3",
-    "tap": "^10.7.2"
+    "tap": "^11.0.1"
   },
   "dependencies": {
     "dns-prefetch-control": "^0.1.0",
