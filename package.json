@@ -27,25 +27,25 @@
   },
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
-    "fastify": "^0.39.1",
+    "fastify": "^1.10.0",
     "pre-commit": "^1.2.2",
-    "snazzy": "^7.0.0",
+    "snazzy": "^7.1.1",
     "standard": "^11.0.0",
-    "tap": "^11.0.1"
+    "tap": "^12.0.0"
   },
   "dependencies": {
     "dns-prefetch-control": "^0.1.0",
     "dont-sniff-mimetype": "^1.0.0",
-    "expect-ct": "0.1.0",
-    "fastify-plugin": "^0.2.1",
+    "expect-ct": "^0.1.1",
+    "fastify-plugin": "^1.0.0",
     "frameguard": "^3.0.0",
-    "helmet-csp": "^2.6.0",
+    "helmet-csp": "^2.7.1",
     "hide-powered-by": "^1.0.0",
     "hpkp": "^2.0.0",
     "hsts": "^2.1.0",
     "ienoopen": "^1.0.0",
     "nocache": "^2.0.0",
     "referrer-policy": "^1.1.0",
-    "x-xss-protection": "^1.0.0"
+    "x-xss-protection": "^1.1.0"
   }
 }
