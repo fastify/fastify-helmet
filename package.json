@@ -4,6 +4,7 @@
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "scripts": {
+    "typescript": "tsc --project ./tsconfig.json",
     "test": "standard | snazzy && tap test.js"
   },
   "repository": {
@@ -27,11 +28,13 @@
   },
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
+    "@types/node": "^10.7.1",
     "fastify": "^1.10.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^7.1.1",
     "standard": "^11.0.0",
-    "tap": "^12.0.0"
+    "tap": "^12.0.0",
+    "typescript": "^3.0.1"
   },
   "dependencies": {
     "dns-prefetch-control": "^0.1.0",
