@@ -31,7 +31,7 @@
     "@types/node": "^10.7.1",
     "fastify": "^1.10.0",
     "pre-commit": "^1.2.2",
-    "snazzy": "^7.1.1",
+    "snazzy": "^8.0.0",
     "standard": "^11.0.0",
     "tap": "^12.0.0",
     "typescript": "^3.0.1"
