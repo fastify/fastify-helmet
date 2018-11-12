@@ -4,8 +4,10 @@ const fp = require('fastify-plugin')
 const config = require('./config')
 const helmet = {
   contentSecurityPolicy: require('helmet-csp'),
+  crossdomain: require('helmet-crossdomain'),
   dnsPrefetchControl: require('dns-prefetch-control'),
   expectCt: require('expect-ct'),
+  featurePolicy: require('feature-policy'),
   frameguard: require('frameguard'),
   hidePoweredBy: require('hide-powered-by'),
   hpkp: require('hpkp'),
