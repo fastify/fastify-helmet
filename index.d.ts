@@ -1,22 +1,6 @@
-import * as fastify from "fastify";
-import * as http from "http";
+import * as fastify from 'fastify';
+import * as http from 'http';
 
-declare module fastifyHelmet {
-  interface FastifyHelmetOptions {
-    contentSecurityPolicy?: any;
-    dnsPrefetchControl?: any;
-    expectCt?: any;
-    frameguard?: any;
-    hidePoweredBy?: any;
-    hpkp?: any;
-    hsts?: any;
-    ieNoOpen?: any;
-    noCache?: any;
-    noSniff?: any;
-    referrerPolicy?: any;
-    xssFilter?: any;
-  }
-}
 
 declare let fastifyHelmet: fastify.Plugin<
   http.Server,
@@ -26,3 +10,156 @@ declare let fastifyHelmet: fastify.Plugin<
 >;
 
 export = fastifyHelmet;
+
+declare namespace fastifyHelmet {
+  interface FastifyHelmetOptions extends IHelmetConfiguration {}
+
+  interface IHelmetConfiguration {
+    contentSecurityPolicy?: boolean | IHelmetContentSecurityPolicyConfiguration;
+    dnsPrefetchControl?: boolean | IHelmetDnsPrefetchControlConfiguration;
+    frameguard?: boolean | IHelmetFrameguardConfiguration;
+    hidePoweredBy?: boolean | IHelmetHidePoweredByConfiguration;
+    hpkp?: boolean | IHelmetHpkpConfiguration;
+    hsts?: boolean | IHelmetHstsConfiguration;
+    ieNoOpen?: boolean;
+    noCache?: boolean;
+    noSniff?: boolean;
+    referrerPolicy?: boolean | IHelmetReferrerPolicyConfiguration;
+    xssFilter?: boolean | IHelmetXssFilterConfiguration;
+    expectCt?: boolean | IHelmetExpectCtConfiguration;
+    permittedCrossDomainPolicies?: boolean | IHelmetPermittedCrossDomainPoliciesConfiguration;
+  }
+
+  interface IHelmetPermittedCrossDomainPoliciesConfiguration {
+    permittedPolicies?: string;
+  }
+
+  interface IHelmetContentSecurityPolicyDirectiveFunction {
+    (req: fastify.FastifyRequest<http.IncomingMessage>, res: fastify.FastifyReply<http.ServerResponse>): string;
+  }
+  type HelmetCspDirectiveValue = string | IHelmetContentSecurityPolicyDirectiveFunction;
+
+  type HelmetCspSandboxDirective =
+    | string
+    | 'allow-forms'
+    | 'allow-modals'
+    | 'allow-orientation-lock'
+    | 'allow-pointer-lock'
+    | 'allow-popups-to-escape-sandbox'
+    | 'allow-popups'
+    | 'allow-presentation'
+    | 'allow-same-origin'
+    | 'allow-scripts'
+    | 'allow-top-navigation';
+
+  type HelmetCspRequireSriForValue = string | 'script' | 'style';
+
+  interface IHelmetContentSecurityPolicyDirectives {
+    baseUri?: HelmetCspDirectiveValue[];
+    blockAllMixedContent?: boolean;
+    childSrc?: HelmetCspDirectiveValue[];
+    connectSrc?: HelmetCspDirectiveValue[];
+    defaultSrc?: HelmetCspDirectiveValue[];
+    fontSrc?: HelmetCspDirectiveValue[];
+    formAction?: HelmetCspDirectiveValue[];
+    frameAncestors?: HelmetCspDirectiveValue[];
+    frameSrc?: HelmetCspDirectiveValue[];
+    imgSrc?: HelmetCspDirectiveValue[];
+    manifestSrc?: HelmetCspDirectiveValue[];
+    mediaSrc?: HelmetCspDirectiveValue[];
+    objectSrc?: HelmetCspDirectiveValue[];
+    pluginTypes?: HelmetCspDirectiveValue[];
+    prefetchSrc?: HelmetCspDirectiveValue[];
+    reportTo?: HelmetCspDirectiveValue;
+    reportUri?: HelmetCspDirectiveValue;
+    requireSriFor?: HelmetCspRequireSriForValue[];
+    sandbox?: HelmetCspSandboxDirective[];
+    scriptSrc?: HelmetCspDirectiveValue[];
+    styleSrc?: HelmetCspDirectiveValue[];
+    upgradeInsecureRequests?: boolean;
+    workerSrc?: HelmetCspDirectiveValue[];
+  }
+
+  interface IHelmetContentSecurityPolicyDirectives {
+    'base-uri'?: HelmetCspDirectiveValue[];
+    'block-all-mixed-content'?: boolean;
+    'child-src'?: HelmetCspDirectiveValue[];
+    'connect-src'?: HelmetCspDirectiveValue[];
+    'default-src'?: HelmetCspDirectiveValue[];
+    'font-src'?: HelmetCspDirectiveValue[];
+    'form-action'?: HelmetCspDirectiveValue[];
+    'frame-ancestors'?: HelmetCspDirectiveValue[];
+    'frame-src'?: HelmetCspDirectiveValue[];
+    'img-src'?: HelmetCspDirectiveValue[];
+    'manifest-src'?: HelmetCspDirectiveValue[];
+    'media-src'?: HelmetCspDirectiveValue[];
+    'object-src'?: HelmetCspDirectiveValue[];
+    'plugin-types'?: HelmetCspDirectiveValue[];
+    'prefetch-src'?: HelmetCspDirectiveValue[];
+    'report-to'?: HelmetCspDirectiveValue;
+    'report-uri'?: HelmetCspDirectiveValue;
+    'require-sri-for'?: HelmetCspRequireSriForValue[];
+    sandbox?: HelmetCspSandboxDirective[];
+    'script-src'?: HelmetCspDirectiveValue;
+    'style-src'?: HelmetCspDirectiveValue;
+    'upgrade-insecure-requests'?: boolean;
+    'worker-src'?: HelmetCspDirectiveValue;
+  }
+
+  interface IHelmetContentSecurityPolicyConfiguration {
+    reportOnly?: boolean | ((req: fastify.FastifyRequest<http.IncomingMessage>, res: fastify.FastifyReply<http.ServerResponse>) => boolean);
+    setAllHeaders?: boolean;
+    disableAndroid?: boolean;
+    browserSniff?: boolean;
+    directives?: IHelmetContentSecurityPolicyDirectives;
+    loose?: boolean;
+  }
+
+  interface IHelmetDnsPrefetchControlConfiguration {
+    allow?: boolean;
+  }
+
+  interface IHelmetFrameguardConfiguration {
+    action?: string;
+    domain?: string;
+  }
+
+  interface IHelmetHidePoweredByConfiguration {
+    setTo?: string;
+  }
+
+  interface IHelmetSetIfFunction {
+    (req: fastify.FastifyRequest<http.IncomingMessage>, res: fastify.FastifyReply<http.ServerResponse>): boolean;
+  }
+
+  interface IHelmetHpkpConfiguration {
+    maxAge: number;
+    sha256s: string[];
+    includeSubdomains?: boolean;
+    reportUri?: string;
+    reportOnly?: boolean;
+    setIf?: IHelmetSetIfFunction;
+  }
+
+  interface IHelmetHstsConfiguration {
+    maxAge?: number;
+    includeSubdomains?: boolean;
+    preload?: boolean;
+    setIf?: IHelmetSetIfFunction;
+    force?: boolean;
+  }
+
+  interface IHelmetReferrerPolicyConfiguration {
+    policy?: string;
+  }
+
+  interface IHelmetXssFilterConfiguration {
+    setOnOldIE?: boolean;
+  }
+
+  interface IHelmetExpectCtConfiguration {
+    enforce?: boolean;
+    maxAge?: number;
+    reportUri?: string;
+  }
+}
