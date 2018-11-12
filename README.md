@@ -36,8 +36,10 @@ fastify.listen(3000, err => {
 | Module | Default? |
 |---|---|
 | [contentSecurityPolicy](https://helmetjs.github.io/docs/csp/) for setting Content Security Policy |  |
+| [crossdomain](https://helmetjs.github.io/docs/crossdomain/) for handling Adobe products’ crossdomain requests |  |
 | [expectCt](https://helmetjs.github.io/docs/expect-ct/) for handling Certificate Transparency |  |
 | [dnsPrefetchControl](https://helmetjs.github.io/docs/dns-prefetch-control) controls browser DNS prefetching | ✓ |
+| [featurePolicy](https://helmetjs.github.io/docs/feature-policy/) to limit your site’s features |  |
 | [frameguard](https://helmetjs.github.io/docs/frameguard/) to prevent clickjacking | ✓ |
 | [hidePoweredBy](https://helmetjs.github.io/docs/hide-powered-by) to remove the X-Powered-By header | ✓ |
 | [hpkp](https://helmetjs.github.io/docs/hpkp/) for HTTP Public Key Pinning |  |
