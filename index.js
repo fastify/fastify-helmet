@@ -14,7 +14,8 @@ const helmet = {
   noCache: require('nocache'),
   noSniff: require('dont-sniff-mimetype'),
   referrerPolicy: require('referrer-policy'),
-  xssFilter: require('x-xss-protection')
+  xssFilter: require('x-xss-protection'),
+  crossdomain: require('helmet-crossdomain')
 }
 
 const middlewares = Object.keys(helmet)
