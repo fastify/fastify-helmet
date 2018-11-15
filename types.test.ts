@@ -92,6 +92,11 @@ function dnsPrefetchControlTest() {
   app.register(fastifyHelmet, { dnsPrefetchControl: { allow: true } });
 }
 
+function featurePolicyTest() {
+  app.register(fastifyHelmet, { featurePolicy: { features: {notifications: ['self']} } });
+  app.register(fastifyHelmet, { featurePolicy: { features: {supportedButNotYetTyped: ["'self'"]} } });
+}
+
 function frameguardTest() {
   app.register(fastifyHelmet, { frameguard: {} });
   app.register(fastifyHelmet, { frameguard: { action: "deny" } });

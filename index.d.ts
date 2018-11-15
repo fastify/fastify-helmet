@@ -1,3 +1,6 @@
+// Type definitions for fastify-helmet
+// Types are heavily based on the type definitions from helmet
+
 import * as fastify from 'fastify';
 import * as http from 'http';
 
@@ -12,11 +15,12 @@ declare let fastifyHelmet: fastify.Plugin<
 export = fastifyHelmet;
 
 declare namespace fastifyHelmet {
-  interface FastifyHelmetOptions extends IHelmetConfiguration {}
 
-  interface IHelmetConfiguration {
+  interface FastifyHelmetOptions {
     contentSecurityPolicy?: boolean | IHelmetContentSecurityPolicyConfiguration;
     dnsPrefetchControl?: boolean | IHelmetDnsPrefetchControlConfiguration;
+    expectCt?: boolean | IHelmetExpectCtConfiguration;
+    featurePolicy?: IHelmetFeaturePolicyConfigurationStrict | IHelmetFeaturePolicyConfiguration;
     frameguard?: boolean | IHelmetFrameguardConfiguration;
     hidePoweredBy?: boolean | IHelmetHidePoweredByConfiguration;
     hpkp?: boolean | IHelmetHpkpConfiguration;
@@ -24,10 +28,9 @@ declare namespace fastifyHelmet {
     ieNoOpen?: boolean;
     noCache?: boolean;
     noSniff?: boolean;
+    permittedCrossDomainPolicies?: boolean | IHelmetPermittedCrossDomainPoliciesConfiguration;
     referrerPolicy?: boolean | IHelmetReferrerPolicyConfiguration;
     xssFilter?: boolean | IHelmetXssFilterConfiguration;
-    expectCt?: boolean | IHelmetExpectCtConfiguration;
-    permittedCrossDomainPolicies?: boolean | IHelmetPermittedCrossDomainPoliciesConfiguration;
   }
 
   interface IHelmetPermittedCrossDomainPoliciesConfiguration {
@@ -37,6 +40,7 @@ declare namespace fastifyHelmet {
   interface IHelmetContentSecurityPolicyDirectiveFunction {
     (req: fastify.FastifyRequest<http.IncomingMessage>, res: fastify.FastifyReply<http.ServerResponse>): string;
   }
+
   type HelmetCspDirectiveValue = string | IHelmetContentSecurityPolicyDirectiveFunction;
 
   type HelmetCspSandboxDirective =
@@ -117,6 +121,34 @@ declare namespace fastifyHelmet {
 
   interface IHelmetDnsPrefetchControlConfiguration {
     allow?: boolean;
+  }
+
+  interface IHelmetFeaturePolicyConfiguration {
+    features: {
+      [key: string]: string[];
+    }
+  }
+
+  interface IHelmetFeaturePolicyConfigurationStrict {
+    features: {
+      geolocation?: string[];
+      midi?: string[];
+      notifications?: string[];
+      push?: string[];
+      syncXhr?: string[];
+      microphone?: string[];
+      camera?: string[];
+      magnetometer?: string[];
+      gyroscope?: string[];
+      speaker?: string[];
+      vibrate?: string[];
+      fullscreen?: string[];
+      payment?: string[];
+      accelerometer?: string[];
+      usb?: string[];
+      vr?: string[];
+      autoplay?: string[];
+    }
   }
 
   interface IHelmetFrameguardConfiguration {
