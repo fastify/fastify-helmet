@@ -33,7 +33,7 @@ test('set the default headers', (t) => {
 test('sets default cross-domain-policy', (t) => {
   const fastify = Fastify()
 
-  fastify.register(helmet, { crossdomain: true })
+  fastify.register(helmet, { permittedCrossDomainPolicies: true })
 
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
@@ -46,6 +46,28 @@ test('sets default cross-domain-policy', (t) => {
     t.error(err)
     const expected = {
       'x-permitted-cross-domain-policies': 'none'
+    }
+
+    t.include(res.headers, expected)
+    t.end()
+  })
+})
+test('can set cross-domain-policy', (t) => {
+  const fastify = Fastify()
+
+  fastify.register(helmet, { permittedCrossDomainPolicies: { permittedPolicies: 'by-content-type' } })
+
+  fastify.get('/', (request, reply) => {
+    reply.send({ hello: 'world' })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/'
+  }, (err, res) => {
+    t.error(err)
+    const expected = {
+      'x-permitted-cross-domain-policies': 'by-content-type'
     }
 
     t.include(res.headers, expected)
