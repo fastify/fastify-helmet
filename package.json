@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "typescript": "tsc --project ./tsconfig.json",
-    "test": "standard | snazzy && tap test.js"
+    "test": "standard | snazzy && tap test.js && npm run typescript"
   },
   "repository": {
     "type": "git",
