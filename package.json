@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
-    "@types/node": "^10.12.9",
+    "@types/node": "^10.12.18",
     "fastify": "^1.13.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
