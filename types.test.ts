@@ -57,6 +57,45 @@ function contentSecurityPolicyTest() {
     disableAndroid: false
   };
 
+  const configWithBooleanSandbox: fastifyHelmet.IHelmetContentSecurityPolicyConfiguration = {
+    directives: {
+      baseUri: ["base.example.com"],
+      blockAllMixedContent: true,
+      childSrc: ["child.example.com"],
+      connectSrc: ["connect.example.com"],
+      defaultSrc: ["*"],
+      fontSrc: ["font.example.com"],
+      formAction: ["formaction.example.com"],
+      frameAncestors: ["'none'"],
+      frameSrc: emptyArray,
+      imgSrc: ["images.example.com"],
+      mediaSrc: ["media.example.com"],
+      manifestSrc: ["manifest.example.com"],
+      objectSrc: ["objects.example.com"],
+      pluginTypes: emptyArray,
+      prefetchSrc: ["prefetch.example.com"],
+      reportUri: "/some-url",
+      reportTo: "report.example.com",
+      requireSriFor: emptyArray,
+      sandbox: true,
+      scriptSrc: [
+        "scripts.example.com",
+        function(
+          req: fastify.FastifyRequest<http.IncomingMessage>,
+          res: fastify.FastifyReply<http.ServerResponse>
+        ) {
+          return "'nonce-abc123'";
+        }
+      ],
+      styleSrc: ["css.example.com"],
+      upgradeInsecureRequests: true,
+      workerSrc: ["worker.example.com"]
+    },
+    reportOnly: false,
+    setAllHeaders: false,
+    disableAndroid: false
+  };
+
   function reportUriCb(
     req: fastify.FastifyRequest<http.IncomingMessage>,
     res: fastify.FastifyReply<http.ServerResponse>
