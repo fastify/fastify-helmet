@@ -3,7 +3,7 @@ os:
   - windows
   - linux
 node_js:
-  - "11"
+  - "12"
   - "10"
   - "8"
   - "6"
