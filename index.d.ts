@@ -77,7 +77,7 @@ declare namespace fastifyHelmet {
     reportTo?: HelmetCspDirectiveValue;
     reportUri?: HelmetCspDirectiveValue;
     requireSriFor?: HelmetCspRequireSriForValue[];
-    sandbox?: HelmetCspSandboxDirective[];
+    sandbox?: HelmetCspSandboxDirective[] | true;
     scriptSrc?: HelmetCspDirectiveValue[];
     styleSrc?: HelmetCspDirectiveValue[];
     upgradeInsecureRequests?: boolean;
@@ -103,7 +103,7 @@ declare namespace fastifyHelmet {
     'report-to'?: HelmetCspDirectiveValue;
     'report-uri'?: HelmetCspDirectiveValue;
     'require-sri-for'?: HelmetCspRequireSriForValue[];
-    sandbox?: HelmetCspSandboxDirective[];
+    sandbox?: HelmetCspSandboxDirective[] | true;
     'script-src'?: HelmetCspDirectiveValue;
     'style-src'?: HelmetCspDirectiveValue;
     'upgrade-insecure-requests'?: boolean;
