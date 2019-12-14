@@ -31,7 +31,7 @@ fastify.listen(3000, err => {
 
 ## How it works
 
-`fastify-helmet` is a collection of 12 smaller middleware functions that set HTTP headers. Running `fastify.register(helmet)` will not include all of these middleware functions by default.
+`fastify-helmet` is a collection of 14 smaller middleware functions that set HTTP headers. Running `fastify.register(helmet)` will not include all of these middleware functions by default.
 
 | Module | Default? |
 |---|---|
