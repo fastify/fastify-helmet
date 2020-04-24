@@ -23,7 +23,7 @@ const middlewares = Object.keys(helmet)
 
 module.exports = fp(function (fastify, opts, next) {
   function useMiddlewares () {
-    middlewares.forEach(function (middlewareName) {
+    for (const middlewareName of middlewares) {
       const middleware = helmet[middlewareName]
       const option = opts[middlewareName]
       const isDefault = config.defaultMiddleware.indexOf(middlewareName) !== -1
@@ -39,7 +39,7 @@ module.exports = fp(function (fastify, opts, next) {
       } else if (isDefault) {
         fastify.use(middleware({}))
       }
-    })
+    }
   }
 
   // TODO: Once Middie uses Decorator API we can detect presence using that: https://www.fastify.io/docs/latest/Decorators/#hasdecoratorname
