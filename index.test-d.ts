@@ -1,24 +1,52 @@
 import * as http from "http";
-import fastifyHelmet = require("../fastify-helmet");
-import fastify = require("fastify");
+import * as https from "https";
+import * as http2 from "http2";
+import fastifyHelmet, { IHelmetContentSecurityPolicyConfiguration } from ".";
+import fastify from "fastify";
+import { expectType } from 'tsd';
 
 const app = fastify();
 
-function helmetTest() {
-  app.register(fastifyHelmet);
-  app.register(fastifyHelmet, {});
-  app.register(fastifyHelmet, { frameguard: false });
-  app.register(fastifyHelmet, { frameguard: true });
-  app.register(fastifyHelmet, {
-    frameguard: {
-      action: "deny"
+app.register(fastifyHelmet);
+app.register(fastifyHelmet, {});
+app.register(fastifyHelmet, { frameguard: false });
+app.register(fastifyHelmet, { frameguard: true });
+
+const appWithHttp2 = fastify({ http2: true });
+appWithHttp2.register(fastifyHelmet, {});
+appWithHttp2.register(fastifyHelmet, {
+  frameguard: {
+    action: "deny"
+  },
+  contentSecurityPolicy: {
+    directives: {
+      scriptSrc: ["scripts.example.com", (req, res) => {
+        expectType<http.IncomingMessage | http2.Http2ServerRequest>(req);
+        expectType<http.ServerResponse | http2.Http2ServerResponse>(res);
+
+        // Discriminating union
+        if ('authority' in req) {
+          expectType<http2.Http2ServerRequest>(req);
+        } else {
+          expectType<http.IncomingMessage>(req);
+        }
+
+        // Discriminating union
+        if ('createPushResponse' in res) {
+          expectType<http2.Http2ServerResponse>(res);
+        } else {
+          expectType<http.ServerResponse>(res);
+        }
+
+        return "'nonce-abc123'";
+      }],
     }
-  });
-}
+  }
+});
 
 function contentSecurityPolicyTest() {
   const emptyArray: string[] = [];
-  const config: fastifyHelmet.IHelmetContentSecurityPolicyConfiguration = {
+  const config: IHelmetContentSecurityPolicyConfiguration = {
     directives: {
       baseUri: ["base.example.com"],
       blockAllMixedContent: true,
@@ -41,12 +69,7 @@ function contentSecurityPolicyTest() {
       sandbox: ["allow-presentation"],
       scriptSrc: [
         "scripts.example.com",
-        function(
-          req: fastify.FastifyRequest<http.IncomingMessage>,
-          res: fastify.FastifyReply<http.ServerResponse>
-        ) {
-          return "'nonce-abc123'";
-        }
+        (_req, _res) => "'nonce-abc123'"
       ],
       styleSrc: ["css.example.com"],
       upgradeInsecureRequests: true,
@@ -57,7 +80,7 @@ function contentSecurityPolicyTest() {
     disableAndroid: false
   };
 
-  const configWithBooleanSandbox: fastifyHelmet.IHelmetContentSecurityPolicyConfiguration = {
+  const configWithBooleanSandbox: IHelmetContentSecurityPolicyConfiguration = {
     directives: {
       baseUri: ["base.example.com"],
       blockAllMixedContent: true,
@@ -80,12 +103,7 @@ function contentSecurityPolicyTest() {
       sandbox: true,
       scriptSrc: [
         "scripts.example.com",
-        function(
-          req: fastify.FastifyRequest<http.IncomingMessage>,
-          res: fastify.FastifyReply<http.ServerResponse>
-        ) {
-          return "'nonce-abc123'";
-        }
+        (_req, _res) => "'nonce-abc123'"
       ],
       styleSrc: ["css.example.com"],
       upgradeInsecureRequests: true,
@@ -96,29 +114,16 @@ function contentSecurityPolicyTest() {
     disableAndroid: false
   };
 
-  function reportUriCb(
-    req: fastify.FastifyRequest<http.IncomingMessage>,
-    res: fastify.FastifyReply<http.ServerResponse>
-  ) {
-    return "/some-uri";
-  }
-  function reportOnlyCb(
-    req: fastify.FastifyRequest<http.IncomingMessage>,
-    res: fastify.FastifyReply<http.ServerResponse>
-  ) {
-    return false;
-  }
-
   app.register(fastifyHelmet, {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        reportUri: reportUriCb,
-        "report-uri": reportUriCb,
-        reportTo: reportUriCb,
-        "report-to": reportUriCb
+        reportUri: (_req, _res) => "/some-uri",
+        "report-uri": (_req, _res) => "/some-uri",
+        reportTo: (_req, _res) => "/some-uri",
+        "report-to": (_req, _res) => "/some-uri"
       },
-      reportOnly: reportOnlyCb,
+      reportOnly: (_req, _res) => false,
       loose: false,
       setAllHeaders: true
     }
@@ -132,8 +137,8 @@ function dnsPrefetchControlTest() {
 }
 
 function featurePolicyTest() {
-  app.register(fastifyHelmet, { featurePolicy: { features: {notifications: ['self']} } });
-  app.register(fastifyHelmet, { featurePolicy: { features: {supportedButNotYetTyped: ["'self'"]} } });
+  app.register(fastifyHelmet, { featurePolicy: { features: { notifications: ['self'] } } });
+  app.register(fastifyHelmet, { featurePolicy: { features: { supportedButNotYetTyped: ["'self'"] } } });
 }
 
 function frameguardTest() {
@@ -199,7 +204,7 @@ function hpkpTest() {
     hpkp: {
       maxAge: 7776000000,
       sha256s: ["AbCdEf123=", "ZyXwVu456="],
-      setIf: function(req, res) {
+      setIf: function (req, res) {
         return true;
       }
     }
@@ -239,7 +244,7 @@ function hstsTest() {
   app.register(fastifyHelmet, {
     hsts: {
       maxAge: 7776000000,
-      setIf: function(req, res) {
+      setIf: function (req, res) {
         return true;
       }
     }
