@@ -1,6 +1,6 @@
 {
   "name": "fastify-helmet",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "scripts": {
