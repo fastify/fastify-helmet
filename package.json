@@ -29,7 +29,7 @@
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
     "@types/node": "^12.0.0",
-    "fastify": "^3.0.0-alpha.1",
+    "fastify": "^3.0.0-rc.1",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
     "standard": "^14.0.2",
@@ -50,7 +50,7 @@
     "hpkp": "^2.0.0",
     "hsts": "^2.1.0",
     "ienoopen": "^1.0.0",
-    "middie": "github:fastify/middie#plugin",
+    "middie": "^5.0.0",
     "nocache": "^2.0.0",
     "referrer-policy": "^1.1.0",
     "x-xss-protection": "^1.1.0"
