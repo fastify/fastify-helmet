@@ -28,7 +28,7 @@ module.exports = fp(function (fastify, opts, next) {
       const option = opts[middlewareName]
       const isDefault = config.defaultMiddleware.indexOf(middlewareName) !== -1
 
-      if (option === false) { return }
+      if (option === false) { continue }
 
       if (option != null) {
         if (option === true) {

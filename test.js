@@ -105,3 +105,35 @@ test('can add feature policy', (t) => {
     t.end()
   })
 })
+test('disabling one header does not disable the other headers', (t) => {
+  const fastify = Fastify()
+
+  fastify.register(helmet, {
+    frameguard: false
+  })
+
+  fastify.get('/', (request, reply) => {
+    reply.send({ hello: 'world' })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/'
+  }, (err, res) => {
+    t.error(err)
+    const notExpected = {
+      'x-frame-options': 'SAMEORIGIN'
+    }
+
+    const expected = {
+      'x-dns-prefetch-control': 'off',
+      'x-download-options': 'noopen',
+      'x-content-type-options': 'nosniff',
+      'x-xss-protection': '1; mode=block'
+    }
+
+    t.doesNotHave(res.headers, notExpected)
+    t.include(res.headers, expected)
+    t.end()
+  })
+})
