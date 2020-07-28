@@ -23,7 +23,7 @@ test('set the default headers', (t) => {
       'x-frame-options': 'SAMEORIGIN',
       'x-download-options': 'noopen',
       'x-content-type-options': 'nosniff',
-      'x-xss-protection': '1; mode=block'
+      'x-xss-protection': '0'
     }
 
     t.include(res.headers, expected)
@@ -33,7 +33,7 @@ test('set the default headers', (t) => {
 test('sets default cross-domain-policy', (t) => {
   const fastify = Fastify()
 
-  fastify.register(helmet, { permittedCrossDomainPolicies: true })
+  fastify.register(helmet)
 
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
@@ -74,37 +74,7 @@ test('can set cross-domain-policy', (t) => {
     t.end()
   })
 })
-test('can add feature policy', (t) => {
-  const fastify = Fastify()
 
-  fastify.register(helmet, {
-    featurePolicy: {
-      features: {
-        fullscreen: ["'self'"],
-        vibrate: ["'none'"],
-        payment: ['example.com'],
-        syncXhr: ["'none'"]
-      }
-    }
-  })
-
-  fastify.get('/', (request, reply) => {
-    reply.send({ hello: 'world' })
-  })
-
-  fastify.inject({
-    method: 'GET',
-    url: '/'
-  }, (err, res) => {
-    t.error(err)
-    const expected = {
-      'feature-policy': "fullscreen 'self';vibrate 'none';payment example.com;sync-xhr 'none'"
-    }
-
-    t.include(res.headers, expected)
-    t.end()
-  })
-})
 test('disabling one header does not disable the other headers', (t) => {
   const fastify = Fastify()
 
@@ -129,7 +99,7 @@ test('disabling one header does not disable the other headers', (t) => {
       'x-dns-prefetch-control': 'off',
       'x-download-options': 'noopen',
       'x-content-type-options': 'nosniff',
-      'x-xss-protection': '1; mode=block'
+      'x-xss-protection': '0'
     }
 
     t.doesNotHave(res.headers, notExpected)
