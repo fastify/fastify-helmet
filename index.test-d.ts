@@ -10,7 +10,7 @@ const app = fastify();
 app.register(fastifyHelmet);
 app.register(fastifyHelmet, {});
 app.register(fastifyHelmet, { frameguard: false });
-app.register(fastifyHelmet, { frameguard: true });
+app.register(fastifyHelmet, { frameguard: { action: 'something' } });
 
 const appWithHttp2 = fastify({ http2: true });
 appWithHttp2.register(fastifyHelmet, {});
