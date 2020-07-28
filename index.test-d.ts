@@ -1,7 +1,7 @@
 import * as http from "http";
 import * as https from "https";
 import * as http2 from "http2";
-import fastifyHelmet, { IHelmetContentSecurityPolicyConfiguration } from ".";
+import fastifyHelmet from ".";
 import fastify from "fastify";
 import { expectType } from 'tsd';
 
