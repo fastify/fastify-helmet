@@ -3,8 +3,8 @@
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) ![CI
 workflow](https://github.com/fastify/fastify-helmet/workflows/CI%20workflow/badge.svg)
 
-Important security headers for Fastify. It is a port from express of
-[helmet](http://npm.im/helmet)
+Important security headers for Fastify. It is a tiny wrapper around
+[helmet](http://npm.im/helmet).
 
 ## Install
 ```
@@ -32,7 +32,7 @@ fastify.listen(3000, err => {
 
 ## How it works
 
-`fastify-helmet` is just a tiny wrapper around helmet that also adds a dependency to [middie]*(http://npm.im/middie) for middleware support.
+`fastify-helmet` is just a tiny wrapper around helmet that adds an `'onRequest'` hook.
 It accepts the same options of Helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/docs/).
 
 ## License
