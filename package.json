@@ -28,31 +28,22 @@
   },
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
-    "@types/node": "^14.0.1",
+    "@types/node": "^14.0.26",
     "fastify": "^3.0.0",
     "pre-commit": "^1.2.2",
     "snazzy": "^8.0.0",
     "standard": "^14.0.2",
-    "tap": "^14.10.7",
+    "tap": "^14.10.8",
     "tsd": "^0.13.1",
-    "typescript": "^3.0.1"
+    "typescript": "^3.9.7"
   },
   "dependencies": {
-    "dns-prefetch-control": "^0.3.0",
-    "dont-sniff-mimetype": "^1.0.0",
-    "expect-ct": "^0.3.0",
-    "fastify-plugin": "^2.0.0",
-    "feature-policy": "^0.5.0",
-    "frameguard": "^3.0.0",
-    "helmet-crossdomain": "^0.5.0",
-    "helmet-csp": "^2.7.1",
-    "hide-powered-by": "^1.0.0",
-    "hpkp": "^2.0.0",
-    "hsts": "^2.1.0",
-    "ienoopen": "^1.0.0",
-    "middie": "^5.0.0",
-    "nocache": "^2.0.0",
-    "referrer-policy": "^1.1.0",
-    "x-xss-protection": "^1.1.0"
+    "fastify-plugin": "^2.0.3",
+    "helmet": "^4.0.0"
+  },
+  "tsd": {
+    "compilerOptions": {
+      "esModuleInterop": true
+    }
   }
 }
