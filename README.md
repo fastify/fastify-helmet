@@ -35,6 +35,30 @@ fastify.listen(3000, err => {
 `fastify-helmet` is just a tiny wrapper around helmet that adds an `'onRequest'` hook.
 It accepts the same options of Helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/docs/).
 
+## Advanced Usage
+One of the more fine grained use cases of a content security policy is to generate nonces for dynamic <script> and <style> tags that get generated in html. To enable dynamic nonce generation on every request, simply include the `generateNonces: true` as part of your configuration.  Example:
+```js
+fastify.register(helmet, {
+  generateNonces: true,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"]
+    }
+  }
+})
+
+fastify.get('/some-page', (request, reply) => {
+  console.log(reply.raw.locals.nonce) // your nonce - brmN+y1vMxcK7AIimSeQDA==
+
+  reply.view('my-view', { nonce: reply.raw.locals.nonce })
+})
+```
+Now, in your route handler, you will have a CSP that "knows" your nonce value, and you will have access to it for server rendering via `reply.raw.locals.nonce` so that you can pass the value to your dynamically rendered view code.
+
+You may not want your server to use resources generating this nonce on every request, therefore it is suggested to scope this handling nonces to only your routes that need to use it, such as your view / dynamic html routes.  That way you keep performance up.
+
 ## License
 
 MIT
