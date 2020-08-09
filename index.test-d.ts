@@ -20,6 +20,10 @@ app.register(fastifyHelmet, {
 });
 
 app.register(fastifyHelmet, {
+  generateNonces: true
+});
+
+app.register(fastifyHelmet, {
   contentSecurityPolicy: {
     directives: {
       'directive-1': ['foo', 'bar']

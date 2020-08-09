@@ -107,3 +107,31 @@ test('disabling one header does not disable the other headers', (t) => {
     t.end()
   })
 })
+
+test('set nonces', (t) => {
+  const fastify = Fastify()
+
+  fastify.register(helmet, {
+    generateNonces: true,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"]
+      }
+    }
+  })
+
+  fastify.get('/', (request, reply) => {
+    reply.send({ hello: 'world', nonce: reply.raw.locals.nonce })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/'
+  }, (err, res) => {
+    t.error(err)
+    t.true(!!res.json().nonce)
+    t.end()
+  })
+})

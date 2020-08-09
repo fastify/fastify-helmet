@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "typescript": "tsd",
-    "test": "standard | snazzy && tap test.js && npm run typescript"
+    "test": "standard | snazzy && tap test.js && npm run typescript",
+    "standard": "standard --fix"
   },
   "repository": {
     "type": "git",
