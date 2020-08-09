@@ -57,7 +57,7 @@ fastify.get('/some-page', (request, reply) => {
 ```
 Now, in your route handler, you will have a CSP that "knows" your nonce value, and you will have access to it for server rendering via `reply.raw.locals.nonce` so that you can pass the value to your dynamically rendered view code.
 
-You may not want your server to use resources generating this nonce on every request, therefore it is suggested to scope this handling nonces to only your routes that need to use it, such as your view / dynamic html routes.  That way you keep performance up.
+You may not want your server to use resources generating this nonce on every request, therefore it is suggested to scope this handling nonces to only your routes that need to use it, such as your view / dynamic html routes.  That way you keep performance up.  For a fine grained example of this, take a look at the test case `only sets nonces in a scoped plugin` in `test.js`
 
 ## License
 

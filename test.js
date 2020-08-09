@@ -135,3 +135,46 @@ test('set nonces', (t) => {
     t.end()
   })
 })
+
+test('only sets nonces in a scoped plugin', (t) => {
+  const fastify = Fastify()
+
+  fastify.register((instance, opts, next) => {
+    instance.register(helmet, {
+      generateNonces: true,
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"]
+        }
+      }
+    })
+
+    instance.get('/scoped', (request, reply) => {
+      reply.send({ nonce: reply.raw.locals.nonce, hello: 'scoped' })
+    })
+
+    next()
+  })
+
+  fastify.get('/root', (request, reply) => {
+    const { locals: { nonce = null } = {} } = reply.raw
+
+    reply.send({ hello: 'world', nonce })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/root'
+  }, (err, res) => {
+    t.error(err)
+    t.equals(res.json().nonce, null)
+
+    fastify.inject({ method: 'GET', url: '/scoped' }, (err, res) => {
+      t.error(err)
+      t.true(!!res.json().nonce)
+      t.end()
+    })
+  })
+})
