@@ -1,7 +1,8 @@
-import { FastifyPlugin } from 'fastify';
-import { HelmetOptions } from 'helmet';
+import { FastifyPlugin } from "fastify";
+import helmet from "helmet";
 
-interface FastifyHelmetOptions extends HelmetOptions {}
+type FastifyHelmetOptions = Parameters<typeof helmet>[0];
 
-declare const fastifyHelmet: FastifyPlugin<FastifyHelmetOptions>;
-export = fastifyHelmet;
+export const fastifyHelmet: FastifyPlugin<NonNullable<FastifyHelmetOptions>>;
+
+export default fastifyHelmet;
