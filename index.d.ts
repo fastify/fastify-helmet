@@ -1,4 +1,4 @@
-import { FastifyPluginCallback } from "fastify/types/plugin";
+import { FastifyPluginCallback } from "fastify";
 import * as helmet from "helmet";
 
 type FastifyHelmetOptions = Parameters<typeof helmet>[0];
