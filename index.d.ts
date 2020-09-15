@@ -1,5 +1,5 @@
 import { FastifyPluginCallback } from "fastify";
-import * as helmet from "helmet";
+import helmet = require("helmet");
 
 type FastifyHelmetOptions = Parameters<typeof helmet>[0];
 
