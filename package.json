@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "typescript": "tsd",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
     "test": "standard | snazzy && tap test.js && npm run typescript"
   },
   "repository": {

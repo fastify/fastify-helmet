@@ -1,7 +1,7 @@
 'use strict'
 
-var Koa = require('koa')
-var app = new Koa()
+const Koa = require('koa')
+const app = new Koa()
 
 app.use(require('koa-pino-logger')())
 app.use(require('koa-helmet')())

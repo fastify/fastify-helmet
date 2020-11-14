@@ -1,9 +1,9 @@
 'use strict'
 
-var express = require('express')
-var helmet = require('helmet')
+const express = require('express')
+const helmet = require('helmet')
 
-var app = express()
+const app = express()
 
 app.use(helmet())
 app.use(require('express-pino-logger')())
