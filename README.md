@@ -21,8 +21,8 @@ const helmet = require('fastify-helmet')
 
 fastify.register(
   helmet,
-  // Example of passing an option to x-powered-by middleware
-  { hidePoweredBy: { setTo: 'PHP 4.2.0' } }
+  // Example disables the `contentSecurityPolicy` middleware but keeps the rest.
+  { contentSecurityPolicy: false }
 )
 
 fastify.listen(3000, err => {
