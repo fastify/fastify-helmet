@@ -3,7 +3,7 @@
 const fp = require('fastify-plugin')
 const helmet = require('helmet')
 
-module.exports = fp(function (app, options, next) {
+const fastifyHelmet = function (app, options, next) {
   const middleware = helmet(options)
 
   app.addHook('onRequest', function (req, reply, next) {
@@ -11,7 +11,11 @@ module.exports = fp(function (app, options, next) {
   })
 
   next()
-}, {
+}
+
+fastifyHelmet.contentSecurityPolicy = helmet.contentSecurityPolicy
+
+module.exports = fp(fastifyHelmet, {
   fastify: '3.x',
   name: 'fastify-helmet'
 })
