@@ -15,3 +15,5 @@ module.exports = fp(function (app, options, next) {
   fastify: '3.x',
   name: 'fastify-helmet'
 })
+
+module.exports.contentSecurityPolicy = helmet.contentSecurityPolicy

@@ -107,3 +107,30 @@ test('disabling one header does not disable the other headers', (t) => {
     t.end()
   })
 })
+test('default CSP directives can be accessed through plugin export', (t) => {
+  const fastify = Fastify()
+
+  fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives()
+      }
+    }
+  })
+
+  fastify.get('/', (request, reply) => {
+    reply.send({ hello: 'world' })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    url: '/'
+  }, (err, res) => {
+    t.error(err)
+
+    const expected = { 'content-security-policy': 'default-src \'self\';base-uri \'self\';block-all-mixed-content;font-src \'self\' https: data:;frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests' }
+
+    t.include(res.headers, expected)
+    t.end()
+  })
+})
