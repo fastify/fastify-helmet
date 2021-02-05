@@ -5,7 +5,7 @@
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) 
 
 Important security headers for Fastify. It is a tiny wrapper around
-[helmet](http://npm.im/helmet).
+[helmet](https://npm.im/helmet).
 
 ## Install
 ```
