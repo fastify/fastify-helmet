@@ -4,10 +4,11 @@
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "scripts": {
-    "typescript": "tsd",
     "lint": "standard",
     "lint:fix": "standard --fix",
-    "test": "standard | snazzy && tap test.js && npm run typescript"
+    "test": "standard | snazzy && tap test.js && npm run typescript",
+    "test:ci": "standard | snazzy && tap test.js --coverage-report=lcovonly && npm run typescript",
+    "typescript": "tsd"
   },
   "repository": {
     "type": "git",
