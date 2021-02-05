@@ -1,5 +1,12 @@
 name: CI workflow
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - '*.md'
+  pull_request:
+    paths-ignore:
+      - '*.md'
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -15,7 +22,23 @@ jobs:
     - name: Install Dependencies
       run: npm install --ignore-scripts
     - name: Test
-      run: npm test
+      run: npm run test:ci
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel: true
+        flag-name: run-${{ matrix.node-version }}
+
+  coverage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
 
   automerge:
     needs: test
