@@ -134,3 +134,67 @@ test('default CSP directives can be accessed through plugin export', (t) => {
     t.end()
   })
 })
+
+test('auto generate nonce pre request', async (t) => {
+  t.plan(7)
+
+  const fastify = Fastify()
+  fastify.register(helmet, {
+    enableCSPNonces: true
+  })
+
+  fastify.get('/', (request, reply) => {
+    t.ok(reply.cspNonce)
+    reply.send(reply.cspNonce)
+  })
+
+  let cspCache, res
+
+  try {
+    res = await fastify.inject({ method: 'GET', url: '/' })
+    cspCache = res.json()
+    t.ok(cspCache.script)
+    t.ok(cspCache.style)
+
+    res = await fastify.inject({ method: 'GET', url: '/' })
+    const newCsp = res.json()
+    t.notEqual(cspCache, newCsp)
+    t.ok(cspCache.script)
+    t.ok(cspCache.style)
+  } catch (err) {
+    t.error(err)
+  }
+})
+
+test('allow merging options for enableCSPNonces', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  fastify.register(helmet, {
+    enableCSPNonces: true,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"]
+      }
+    }
+  })
+
+  fastify.get('/', (request, reply) => {
+    t.ok(reply.cspNonce)
+    reply.send(reply.cspNonce)
+  })
+
+  try {
+    const res = await fastify.inject({ method: 'GET', url: '/' })
+    const cspCache = res.json()
+    t.ok(cspCache.script)
+    t.ok(cspCache.style)
+    t.includes(res.headers, {
+      'content-security-policy': `default-src 'self';script-src 'self' nonce-${cspCache.script};style-src 'self' nonce-${cspCache.style}`
+    })
+  } catch (err) {
+    t.error(err)
+  }
+})
