@@ -32,6 +32,81 @@ fastify.listen(3000, err => {
 })
 ```
 
+### Content-Security-Policy Nonce
+
+`fastify-helmet` provide a simple way for `csp nonces generation`. You can enable
+this behavior by passing `{ enableCSPNonces: true }` into the options. Then, you can
+retrieve the `nonces` through `reply.cspNonce`.
+
+Note: This feature is implemented inside this module. It is not a valid option or
+      supported by helmet. If you need to use helmet feature only for csp nonce you
+      can follow the example [here](#example---generate-by-helmet).
+
+#### Example - Generate by options
+
+```js
+fastify.register(
+  helmet,
+  // enable csp nonces generation with default content-security-policy option
+  { enableCSPNonces: true }
+)
+
+fastify.register(
+  helmet,
+  // customize content security policy with nonce generation
+  { 
+    enableCSPNonces: true,
+    contentSecurityPolicy: {
+      directives: {
+        ...
+      }
+    }
+  }
+)
+
+fastify.get('/', function(request, reply) {
+  // retrieve script nonce
+  reply.cspNonce.script
+  // retrieve style nonce
+  reply.cspNonce.style
+})
+```
+
+#### Example - Generate by helmet
+
+```js
+fastify.register(
+  helmet,
+  { 
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          function (req, res) {
+            // "res" here is actually "reply.raw" in fastify
+            res.scriptNonce = crypto.randomBytes(16).toString('hex')
+          }
+        ],
+        styleSrc: [
+          function (req, res) {
+            // "res" here is actually "reply.raw" in fastify
+            res.styleNonce = crypto.randomBytes(16).toString('hex')
+          }
+        ]
+      }
+    }
+  }
+)
+
+fastify.get('/', function(request, reply) {
+  // you can access the generated nonce by "reply.raw"
+  reply.raw.scriptNonce
+  reply.raw.styleNonce
+})
+
+```
+
+
 ## How it works
 
 `fastify-helmet` is just a tiny wrapper around helmet that adds an `'onRequest'` hook.

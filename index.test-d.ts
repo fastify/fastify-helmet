@@ -1,5 +1,6 @@
-import fastifyHelmet from ".";
 import fastify from "fastify";
+import { expectType } from "tsd";
+import fastifyHelmet from ".";
 
 const app = fastify();
 
@@ -54,3 +55,21 @@ app.register(fastifyHelmet, {
   // noSniff: false,
   // xssFilter: false
 });
+
+
+app.register(fastifyHelmet, { enableCSPNonces: true });
+app.register(fastifyHelmet, { 
+  enableCSPNonces: true,
+  contentSecurityPolicy: {
+    directives: {
+      'directive-1': ['foo', 'bar']
+    },
+    reportOnly: true
+  },
+});
+app.get('/', function(request, reply) {
+  expectType<{
+    script: string
+    style: string
+  }>(reply.cspNonce)
+})
