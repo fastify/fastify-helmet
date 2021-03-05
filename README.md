@@ -32,6 +32,37 @@ fastify.listen(3000, err => {
 })
 ```
 
+### Content-Security-Policy Nonce
+
+```js
+fastify.register(
+  helmet,
+  // enable csp nonces generation with default content-security-policy option
+  { enableCSPNonces: true }
+)
+
+fastify.register(
+  helmet,
+  // customize content security policy with nonce generation
+  { 
+    enableCSPNonces: true,
+    contentSecurityPolicy: {
+      directives: {
+        ...
+      }
+    }
+  }
+)
+
+fastify.get('/', function(request, reply) {
+  // retrieve script nonce
+  reply.cspNonce.script
+  // retrieve style nonce
+  reply.cspNonce.style
+})
+```
+
+
 ## How it works
 
 `fastify-helmet` is just a tiny wrapper around helmet that adds an `'onRequest'` hook.
