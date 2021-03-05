@@ -72,7 +72,7 @@ fastify.get('/', function(request, reply) {
 })
 ```
 
-<a href="#csp-generation-helmet">
+<a href="#csp-generation-helmet"></a>
 #### Example - Generate by helmet
 
 ```js
