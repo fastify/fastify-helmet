@@ -40,7 +40,7 @@ retrieve the `nonces` through `reply.cspNonce`.
 
 Note: This feature is implemented inside this module. It is not a valid option or
       supported by helmet. If you need to use helmet feature only for csp nonce you
-      can follow the example [here](#csp-generation-helmet).
+      can follow the example [here](#example---generate-by-helmet).
 
 #### Example - Generate by options
 
@@ -72,7 +72,6 @@ fastify.get('/', function(request, reply) {
 })
 ```
 
-<a href="#csp-generation-helmet"></a>
 #### Example - Generate by helmet
 
 ```js
