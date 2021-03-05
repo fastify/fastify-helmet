@@ -34,6 +34,12 @@ fastify.listen(3000, err => {
 
 ### Content-Security-Policy Nonce
 
+`fastify-helmet` provide a simple way for `csp nonces generation`. You can enable
+this behavior by passing `{ enableCSPNonces: true }` into the options. Then, you can 
+retrieve the `nonces` through `reply.cspNonce`.
+
+Example:
+
 ```js
 fastify.register(
   helmet,
