@@ -1,6 +1,6 @@
 # fastify-helmet
 
-![CI](https://github.com/fastify/fastify-helmet/workflows/CI%/badge.svg)
+![CI](https://github.com/fastify/fastify-helmet/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/fastify-helmet)](https://www.npmjs.com/package/fastify-helmet)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-helmet/badge.svg)](https://snyk.io/test/github/fastify/fastify-helmet)
 [![Coverage Status](https://coveralls.io/repos/github/fastify/fastify-helmet/badge.svg?branch=master)](https://coveralls.io/github/fastify/fastify-helmet?branch=master)
