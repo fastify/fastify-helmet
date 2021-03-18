@@ -148,22 +148,18 @@ test('auto generate nonce pre request', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  let cspCache, res
+  let res
 
-  try {
-    res = await fastify.inject({ method: 'GET', url: '/' })
-    cspCache = res.json()
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
+  res = await fastify.inject({ method: 'GET', url: '/' })
+  const cspCache = res.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
 
-    res = await fastify.inject({ method: 'GET', url: '/' })
-    const newCsp = res.json()
-    t.notEqual(cspCache, newCsp)
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
-  } catch (err) {
-    t.error(err)
-  }
+  res = await fastify.inject({ method: 'GET', url: '/' })
+  const newCsp = res.json()
+  t.notEqual(cspCache, newCsp)
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
 })
 
 test('allow merging options for enableCSPNonces', async (t) => {
@@ -186,17 +182,13 @@ test('allow merging options for enableCSPNonces', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  try {
-    const res = await fastify.inject({ method: 'GET', url: '/' })
-    const cspCache = res.json()
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
-    t.includes(res.headers, {
-      'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
-    })
-  } catch (err) {
-    t.error(err)
-  }
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  const cspCache = res.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+  t.includes(res.headers, {
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+  })
 })
 
 test('nonce array is not stacked in csp header', async (t) => {
@@ -219,25 +211,21 @@ test('nonce array is not stacked in csp header', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  try {
-    let res = await fastify.inject({ method: 'GET', url: '/' })
-    let cspCache = res.json()
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
-    t.includes(res.headers, {
-      'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
-    })
+  let res = await fastify.inject({ method: 'GET', url: '/' })
+  let cspCache = res.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+  t.includes(res.headers, {
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+  })
 
-    res = await fastify.inject({ method: 'GET', url: '/' })
-    cspCache = res.json()
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
-    t.includes(res.headers, {
-      'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
-    })
-  } catch (err) {
-    t.error(err)
-  }
+  res = await fastify.inject({ method: 'GET', url: '/' })
+  cspCache = res.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+  t.includes(res.headers, {
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+  })
 })
 
 test('access the correct options property', async (t) => {
@@ -260,17 +248,13 @@ test('access the correct options property', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  try {
-    const res = await fastify.inject({ method: 'GET', url: '/' })
-    const cspCache = res.json()
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
-    t.includes(res.headers, {
-      'content-security-policy': `default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';script-src-attr 'none';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';upgrade-insecure-requests`
-    })
-  } catch (err) {
-    t.error(err)
-  }
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  const cspCache = res.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+  t.includes(res.headers, {
+    'content-security-policy': `default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';script-src-attr 'none';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';upgrade-insecure-requests`
+  })
 })
 
 test('do not set script-src or style-src', async (t) => {
@@ -291,15 +275,11 @@ test('do not set script-src or style-src', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  try {
-    const res = await fastify.inject({ method: 'GET', url: '/' })
-    const cspCache = res.json()
-    t.ok(cspCache.script)
-    t.ok(cspCache.style)
-    t.includes(res.headers, {
-      'content-security-policy': `default-src 'self';script-src 'nonce-${cspCache.script}';style-src 'nonce-${cspCache.style}'`
-    })
-  } catch (err) {
-    t.error(err)
-  }
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  const cspCache = res.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+  t.includes(res.headers, {
+    'content-security-policy': `default-src 'self';script-src 'nonce-${cspCache.script}';style-src 'nonce-${cspCache.style}'`
+  })
 })
