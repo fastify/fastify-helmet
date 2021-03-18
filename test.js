@@ -198,3 +198,44 @@ test('allow merging options for enableCSPNonces', async (t) => {
     t.error(err)
   }
 })
+
+test('nonce array is not stacked in csp header', async (t) => {
+  t.plan(8)
+
+  const fastify = Fastify()
+  fastify.register(helmet, {
+    enableCSPNonces: true,
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'"]
+      }
+    }
+  })
+
+  fastify.get('/', (request, reply) => {
+    t.ok(reply.cspNonce)
+    reply.send(reply.cspNonce)
+  })
+
+  try {
+    let res = await fastify.inject({ method: 'GET', url: '/' })
+    let cspCache = res.json()
+    t.ok(cspCache.script)
+    t.ok(cspCache.style)
+    t.includes(res.headers, {
+      'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+    })
+
+    res = await fastify.inject({ method: 'GET', url: '/' })
+    cspCache = res.json()
+    t.ok(cspCache.script)
+    t.ok(cspCache.style)
+    t.includes(res.headers, {
+      'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+    })
+  } catch (err) {
+    t.error(err)
+  }
+})
