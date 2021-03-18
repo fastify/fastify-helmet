@@ -192,7 +192,7 @@ test('allow merging options for enableCSPNonces', async (t) => {
     t.ok(cspCache.script)
     t.ok(cspCache.style)
     t.includes(res.headers, {
-      'content-security-policy': `default-src 'self';script-src 'self' nonce-${cspCache.script};style-src 'self' nonce-${cspCache.style}`
+      'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
     })
   } catch (err) {
     t.error(err)

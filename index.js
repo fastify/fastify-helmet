@@ -32,11 +32,11 @@ module.exports = fp(function (app, options, next) {
       // allow both script-src or scriptSrc syntax
       const scriptKey = Array.isArray(cspDirectives['script-src']) ? 'script-src' : 'scriptSrc'
       cspDirectives[scriptKey] = Array.isArray(cspDirectives.scriptSrc) ? cspDirectives.scriptSrc : []
-      cspDirectives[scriptKey].push('nonce-' + reply.cspNonce.script)
+      cspDirectives[scriptKey].push(`'nonce-${reply.cspNonce.script}'`)
       // allow both style-src or styleSrc syntax
       const styleKey = Array.isArray(cspDirectives['style-src']) ? 'style-src' : 'styleSrc'
       cspDirectives[styleKey] = Array.isArray(cspDirectives.styleSrc) ? cspDirectives.styleSrc : []
-      cspDirectives[styleKey].push('nonce-' + reply.cspNonce.style)
+      cspDirectives[styleKey].push(`'nonce-${reply.cspNonce.style}'`)
 
       const cspMiddleware = helmet.contentSecurityPolicy({ directives: cspDirectives, reportOnly: cspReportOnly })
       cspMiddleware(req.raw, reply.raw, next)
