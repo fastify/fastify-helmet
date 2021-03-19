@@ -22,6 +22,9 @@ module.exports = fp(function (app, options, next) {
 
     app.decorateReply('cspNonce', null)
     app.addHook('onRequest', function (req, reply, next) {
+      // prevent object reference #118
+      const directives = { ...cspDirectives }
+
       // create csp nonce
       reply.cspNonce = {
         script: crypto.randomBytes(16).toString('hex'),
@@ -30,15 +33,15 @@ module.exports = fp(function (app, options, next) {
 
       // push nonce to csp
       // allow both script-src or scriptSrc syntax
-      const scriptKey = Array.isArray(cspDirectives['script-src']) ? 'script-src' : 'scriptSrc'
-      cspDirectives[scriptKey] = Array.isArray(cspDirectives.scriptSrc) ? cspDirectives.scriptSrc : []
-      cspDirectives[scriptKey].push('nonce-' + reply.cspNonce.script)
+      const scriptKey = Array.isArray(directives['script-src']) ? 'script-src' : 'scriptSrc'
+      directives[scriptKey] = Array.isArray(directives[scriptKey]) ? [...directives[scriptKey]] : []
+      directives[scriptKey].push(`'nonce-${reply.cspNonce.script}'`)
       // allow both style-src or styleSrc syntax
-      const styleKey = Array.isArray(cspDirectives['style-src']) ? 'style-src' : 'styleSrc'
-      cspDirectives[styleKey] = Array.isArray(cspDirectives.styleSrc) ? cspDirectives.styleSrc : []
-      cspDirectives[styleKey].push('nonce-' + reply.cspNonce.style)
+      const styleKey = Array.isArray(directives['style-src']) ? 'style-src' : 'styleSrc'
+      directives[styleKey] = Array.isArray(directives[styleKey]) ? [...directives[styleKey]] : []
+      directives[styleKey].push(`'nonce-${reply.cspNonce.style}'`)
 
-      const cspMiddleware = helmet.contentSecurityPolicy({ directives: cspDirectives, reportOnly: cspReportOnly })
+      const cspMiddleware = helmet.contentSecurityPolicy({ directives, reportOnly: cspReportOnly })
       cspMiddleware(req.raw, reply.raw, next)
     })
   }
