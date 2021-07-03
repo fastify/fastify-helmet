@@ -1,5 +1,6 @@
 import { FastifyPluginCallback } from "fastify";
-import helmet = require("helmet");
+import helmet from "helmet";
+import contentSecurityPolicy from "helmet/dist/middlewares/content-security-policy";
 
 declare module 'fastify' {
   interface FastifyReply {
@@ -12,6 +13,8 @@ declare module 'fastify' {
 
 type FastifyHelmetOptions = Parameters<typeof helmet>[0] & { enableCSPNonces?: boolean };
 
-export const fastifyHelmet: FastifyPluginCallback<NonNullable<FastifyHelmetOptions>>;
+export const fastifyHelmet: FastifyPluginCallback<NonNullable<FastifyHelmetOptions>> & {
+  contentSecurityPolicy: typeof contentSecurityPolicy;
+};
 
 export default fastifyHelmet;
