@@ -1,5 +1,5 @@
 import { FastifyPluginCallback } from "fastify";
-import helmet from "helmet";
+import helmet = require("helmet");
 
 declare module 'fastify' {
   interface FastifyReply {
