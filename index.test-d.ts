@@ -1,5 +1,6 @@
 import fastify from "fastify";
 import { expectType } from "tsd";
+import helmet from "helmet";
 import fastifyHelmet from ".";
 
 const app = fastify();
@@ -73,3 +74,6 @@ app.get('/', function(request, reply) {
     style: string
   }>(reply.cspNonce)
 })
+
+const csp = fastifyHelmet.contentSecurityPolicy;
+expectType<typeof helmet.contentSecurityPolicy>(csp);
