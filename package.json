@@ -42,6 +42,6 @@
   },
   "dependencies": {
     "fastify-plugin": "^3.0.0",
-    "helmet": "^4.0.0"
+    "helmet": "^5.0.1"
   }
 }
