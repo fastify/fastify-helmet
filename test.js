@@ -128,7 +128,7 @@ test('default CSP directives can be accessed through plugin export', (t) => {
   }, (err, res) => {
     t.error(err)
 
-    const expected = { 'content-security-policy': 'default-src \'self\';base-uri \'self\';block-all-mixed-content;font-src \'self\' https: data:;frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests' }
+    const expected = { 'content-security-policy': 'default-src \'self\';base-uri \'self\';block-all-mixed-content;font-src \'self\' https: data:;form-action \'self\';frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests' }
 
     t.include(res.headers, expected)
     t.end()
@@ -187,7 +187,7 @@ test('allow merging options for enableCSPNonces', async (t) => {
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.includes(res.headers, {
-    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 })
 
@@ -216,7 +216,7 @@ test('nonce array is not stacked in csp header', async (t) => {
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.includes(res.headers, {
-    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 
   res = await fastify.inject({ method: 'GET', url: '/' })
@@ -224,7 +224,7 @@ test('nonce array is not stacked in csp header', async (t) => {
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.includes(res.headers, {
-    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 })
 
@@ -253,7 +253,7 @@ test('access the correct options property', async (t) => {
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.includes(res.headers, {
-    'content-security-policy': `default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';script-src-attr 'none';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';upgrade-insecure-requests`
+    'content-security-policy': `default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';script-src-attr 'none';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';upgrade-insecure-requests`
   })
 })
 
@@ -280,6 +280,6 @@ test('do not set script-src or style-src', async (t) => {
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.includes(res.headers, {
-    'content-security-policy': `default-src 'self';script-src 'nonce-${cspCache.script}';style-src 'nonce-${cspCache.style}'`
+    'content-security-policy': `default-src 'self';script-src 'nonce-${cspCache.script}';style-src 'nonce-${cspCache.style}';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 })
