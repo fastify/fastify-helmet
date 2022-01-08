@@ -10,9 +10,9 @@ declare module 'fastify' {
   }
 }
 
-type FastifyHelmetOptions = Parameters<typeof helmet>[0] & { enableCSPNonces?: boolean };
+export type FastifyHelmetOptions = NonNullable<Parameters<typeof helmet>[0] & { enableCSPNonces?: boolean }>;
 
-export const fastifyHelmet: FastifyPluginCallback<NonNullable<FastifyHelmetOptions>> & {
+export const fastifyHelmet: FastifyPluginCallback<FastifyHelmetOptions> & {
   contentSecurityPolicy: typeof helmet.contentSecurityPolicy;
 };
 
