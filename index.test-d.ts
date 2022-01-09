@@ -1,13 +1,14 @@
-import fastify from "fastify";
-import { expectType } from "tsd";
+import fastify, { FastifyPluginCallback } from "fastify";
+import { expectAssignable, expectType } from "tsd";
 import helmet from "helmet";
-import fastifyHelmet from ".";
+import fastifyHelmet, { FastifyHelmetOptions } from ".";
 
 const app = fastify();
 
 app.register(fastifyHelmet);
 app.register(fastifyHelmet, {});
-app.register(fastifyHelmet, {
+
+const helmetOptions = {
   contentSecurityPolicy: false,
   dnsPrefetchControl: false,
   expectCt: false,
@@ -19,7 +20,10 @@ app.register(fastifyHelmet, {
   permittedCrossDomainPolicies: false,
   referrerPolicy: false,
   xssFilter: false
-});
+};
+
+expectAssignable<FastifyHelmetOptions>(helmetOptions);
+app.register(fastifyHelmet, helmetOptions);
 
 app.register(fastifyHelmet, {
   contentSecurityPolicy: {
@@ -51,7 +55,7 @@ app.register(fastifyHelmet, {
     policy: 'foo'
   },
   // these options are false or never
-  // hidePoweredBy: false 
+  // hidePoweredBy: false
   // ieNoOpen: false,
   // noSniff: false,
   // xssFilter: false
@@ -59,7 +63,7 @@ app.register(fastifyHelmet, {
 
 
 app.register(fastifyHelmet, { enableCSPNonces: true });
-app.register(fastifyHelmet, { 
+app.register(fastifyHelmet, {
   enableCSPNonces: true,
   contentSecurityPolicy: {
     directives: {
@@ -77,3 +81,8 @@ app.get('/', function(request, reply) {
 
 const csp = fastifyHelmet.contentSecurityPolicy;
 expectType<typeof helmet.contentSecurityPolicy>(csp);
+
+// fastify-helmet instance is using the FastifyHelmetOptions options
+expectType<FastifyPluginCallback<FastifyHelmetOptions> & {
+  contentSecurityPolicy: typeof helmet.contentSecurityPolicy;
+}>(fastifyHelmet);
