@@ -1,11 +1,13 @@
 'use strict'
 
-const fastify = require('fastify')({
+const Fastify = require('fastify')
+const helmet = require('..')
+
+const fastify = Fastify({
   logger: {
     level: 'info'
   }
 })
-const helmet = require('..')
 
 fastify.register(helmet)
 
@@ -24,12 +26,21 @@ const opts = {
   }
 }
 
-fastify.get('/', opts, function (req, reply) {
-  reply.header('Content-Type', 'application/json').code(200)
-  reply.send({ hello: 'world' })
+fastify.get('/', opts, function (request, reply) {
+  reply
+    .header('Content-Type', 'application/json')
+    .code(200)
+    .send({ hello: 'world' })
+})
+
+fastify.get('/route-with-disabled-helmet', { ...opts, helmet: false }, function (request, reply) {
+  reply
+    .header('Content-Type', 'application/json')
+    .code(200)
+    .send({ hello: 'world' })
 })
 
 fastify.listen(3000, err => {
   if (err) throw err
-  console.log('Server listenting on localhost:', fastify.server.address().port)
+  fastify.log.info(`Server listening on ${fastify.server.address().address}:${fastify.server.address().port}`)
 })
