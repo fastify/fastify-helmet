@@ -12,7 +12,7 @@ declare module 'fastify' {
 
 export type FastifyHelmetOptions = NonNullable<Parameters<typeof helmet>[0] & {
   enableCSPNonces?: boolean,
-  isGlobal?: boolean;
+  global?: boolean;
 }>;
 
 export const fastifyHelmet: FastifyPluginCallback<FastifyHelmetOptions> & {
