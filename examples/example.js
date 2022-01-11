@@ -5,7 +5,7 @@ const fastify = require('fastify')({
     level: 'info'
   }
 })
-const helmet = require('.')
+const helmet = require('..')
 
 fastify.register(helmet)
 

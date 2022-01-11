@@ -1,7 +1,7 @@
 import fastify, { FastifyPluginCallback } from "fastify";
 import { expectAssignable, expectType } from "tsd";
 import helmet from "helmet";
-import fastifyHelmet, { FastifyHelmetOptions } from ".";
+import fastifyHelmet, { FastifyHelmetOptions } from "../..";
 
 const app = fastify();
 

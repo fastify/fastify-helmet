@@ -3,11 +3,16 @@
   "version": "6.0.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "lint": "standard",
-    "lint:fix": "standard --fix",
-    "test": "standard | snazzy && tap 'test/*.test.js' && npm run typescript",
-    "test:ci": "standard | snazzy && tap 'test/*.test.js' --coverage-report=lcovonly && npm run typescript",
+    "coverage": "npm run unit -- --coverage-report=lcovonly",
+    "lint": "standard | snazzy",
+    "lint:fix": "standard --fix | snazzy",
+    "test": "npm run lint && npm run unit && npm run typescript",
+    "test:ci": "npm run lint && npm run coverage && npm run typescript",
+    "unit": "tap -J 'test/*.test.js'",
+    "unit:report": "npm run unit -- --coverage-report=html",
+    "unit:verbose": "npm run unit -- -Rspec",
     "typescript": "tsd"
   },
   "repository": {
@@ -43,5 +48,8 @@
   "dependencies": {
     "fastify-plugin": "^3.0.0",
     "helmet": "^5.0.1"
+  },
+  "tsd": {
+    "directory": "test/types"
   }
 }
