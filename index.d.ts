@@ -1,16 +1,19 @@
-import { FastifyPluginCallback } from "fastify";
-import helmet from "helmet";
+import { FastifyPluginCallback } from 'fastify';
+import helmet from 'helmet';
 
 declare module 'fastify' {
   interface FastifyReply {
     cspNonce: {
-      script: string
-      style: string
+      script: string;
+      style: string;
     }
   }
 }
 
-export type FastifyHelmetOptions = NonNullable<Parameters<typeof helmet>[0] & { enableCSPNonces?: boolean }>;
+export type FastifyHelmetOptions = NonNullable<Parameters<typeof helmet>[0] & {
+  enableCSPNonces?: boolean,
+  isGlobal?: boolean;
+}>;
 
 export const fastifyHelmet: FastifyPluginCallback<FastifyHelmetOptions> & {
   contentSecurityPolicy: typeof helmet.contentSecurityPolicy;
