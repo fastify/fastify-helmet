@@ -1,13 +1,28 @@
 'use strict'
 
 const fastify = require('fastify')
-const fastifyHelmet = require('fastify-helmet')
+const helmet = require('..')
 
 const app = fastify({
   logger: { level: 'info' }
 })
 
-app.register(fastifyHelmet)
+app.register(helmet)
+
+const opts = {
+  schema: {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          hello: {
+            type: 'string'
+          }
+        }
+      }
+    }
+  }
+}
 
 app.get('/', function (request, reply) {
   reply.send({ hello: 'world' })
