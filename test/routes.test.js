@@ -4,7 +4,7 @@ const { test } = require('tap')
 const Fastify = require('fastify')
 const helmet = require('..')
 
-test('it should apply route specific helmet options over the global options', async (t) => {
+test('It should apply route specific helmet options over the global options', async (t) => {
   t.plan(2)
 
   const fastify = Fastify()
@@ -34,7 +34,7 @@ test('it should apply route specific helmet options over the global options', as
   t.has(response.headers, expected)
 })
 
-test('it should disable helmet on specific route when route `helmet` option is set to `false`', async (t) => {
+test('It should disable helmet on specific route when route `helmet` option is set to `false`', async (t) => {
   t.plan(2)
 
   const fastify = Fastify()
@@ -112,7 +112,7 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
 })
 
 test('It should add CSPNonce decorator and hooks with default options when route `enableCSPNonces` option is set to true', async (t) => {
-  t.plan(7)
+  t.plan(8)
 
   const fastify = Fastify()
 
@@ -121,7 +121,12 @@ test('It should add CSPNonce decorator and hooks with default options when route
     enableCSPNonces: false
   })
 
-  fastify.get('/', {
+  fastify.get('/no-csp', (request, reply) => {
+    t.equal(reply.cspNonce, null)
+    reply.send({ message: 'no csp' })
+  })
+
+  fastify.get('/with-csp', {
     helmet: {
       enableCSPNonces: true
     }
@@ -130,14 +135,19 @@ test('It should add CSPNonce decorator and hooks with default options when route
     reply.send(reply.cspNonce)
   })
 
+  fastify.inject({
+    method: 'GET',
+    path: '/no-csp'
+  })
+
   let response
 
-  response = await fastify.inject({ method: 'GET', url: '/' })
+  response = await fastify.inject({ method: 'GET', url: '/with-csp' })
   const cspCache = response.json()
   t.ok(cspCache.script)
   t.ok(cspCache.style)
 
-  response = await fastify.inject({ method: 'GET', url: '/' })
+  response = await fastify.inject({ method: 'GET', url: '/with-csp' })
   const newCsp = response.json()
   t.not(cspCache, newCsp)
   t.ok(cspCache.script)
