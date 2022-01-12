@@ -11,6 +11,8 @@ function helmetPlugin (fastify, options, next) {
 
   const isGlobal = typeof global === 'boolean' ? global : true
 
+  fastify.decorateReply('helmet', null)
+
   // We will add the onRequest helmet middleware function through the onRoute hook if needed
   fastify.addHook('onRoute', (routeOptions) => {
     if (typeof routeOptions.helmet !== 'undefined') {
@@ -91,6 +93,8 @@ function buildRouteHooks (configuration, routeOptions) {
   const middleware = helmet(configuration)
 
   function onRequest (request, reply, next) {
+    reply.helmet = middleware
+
     middleware(request.raw, reply.raw, next)
   }
 }
