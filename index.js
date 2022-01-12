@@ -11,13 +11,16 @@ function helmetPlugin (fastify, options, next) {
 
   const isGlobal = typeof global === 'boolean' ? global : true
 
+  // We initialize the `helmet` reply decorator
   fastify.decorateReply('helmet', null)
 
-  // We will add the onRequest helmet middleware function through the onRoute hook if needed
+  // We will add the onRequest helmet middleware functions through the onRoute hook if needed
   fastify.addHook('onRoute', (routeOptions) => {
     if (typeof routeOptions.helmet !== 'undefined') {
       if (typeof routeOptions.helmet === 'object') {
         const { enableCSPNonces: enableRouteCSPNonces, ...helmetRouteConfiguration } = routeOptions.helmet
+
+        // If route helmet route options are set they overwrite the global helmet configuration
         const mergedHelmetConfiguration = Object.assign({}, globalConfiguration, helmetRouteConfiguration)
 
         buildRouteHooks(mergedHelmetConfiguration, routeOptions)
@@ -31,7 +34,7 @@ function helmetPlugin (fastify, options, next) {
         throw new Error('Unknown value for route helmet configuration')
       }
     } else if (isGlobal) {
-      // if the plugin is set globally (meaning that all the routes will)
+      // if the plugin is set globally (meaning that all the routes will be decorated)
       // As the endpoint, does not have a custom helmet configuration, use the global one.
       buildRouteHooks(globalConfiguration, routeOptions)
 
@@ -93,6 +96,7 @@ function buildRouteHooks (configuration, routeOptions) {
   const middleware = helmet(configuration)
 
   function onRequest (request, reply, next) {
+    // We decorate `reply.helmet` with all helmet middleware functions
     reply.helmet = middleware
 
     middleware(request.raw, reply.raw, next)
