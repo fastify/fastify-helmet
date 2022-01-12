@@ -24,7 +24,7 @@ const opts = {
   }
 }
 
-app.get('/', function (request, reply) {
+app.get('/', opts, function (request, reply) {
   reply.send({ hello: 'world' })
 })
 
