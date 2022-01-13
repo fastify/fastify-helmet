@@ -11,7 +11,7 @@ Important security headers for Fastify. It is a tiny wrapper around
 
 ## Install
 ```
-npm install --save fastify-helmet
+npm i fastify-helmet
 ```
 
 ## Usage
