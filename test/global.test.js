@@ -16,7 +16,7 @@ test('It should set the default headers', async (t) => {
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
 
   const expected = {
@@ -42,7 +42,7 @@ test('It should not set the default headers when global is set to `false`', asyn
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
 
   const notExpected = {
@@ -68,7 +68,7 @@ test('It should set the default cross-domain-policy', async (t) => {
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
   const expected = {
     'x-permitted-cross-domain-policies': 'none'
@@ -91,7 +91,7 @@ test('It should be able to set cross-domain-policy', async (t) => {
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
 
   const expected = {
@@ -101,7 +101,7 @@ test('It should be able to set cross-domain-policy', async (t) => {
   t.has(response.headers, expected)
 })
 
-test('disabling one header does not disable the other headers', async (t) => {
+test('It should not disable the other headers when disabling one header', async (t) => {
   t.plan(2)
 
   const fastify = Fastify()
@@ -113,7 +113,7 @@ test('disabling one header does not disable the other headers', async (t) => {
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
   const notExpected = {
     'x-frame-options': 'SAMEORIGIN'
@@ -130,7 +130,7 @@ test('disabling one header does not disable the other headers', async (t) => {
   t.has(response.headers, expected)
 })
 
-test('default CSP directives can be accessed through plugin export', async (t) => {
+test('It should be able to access default CSP directives through plugin export', async (t) => {
   t.plan(1)
 
   const fastify = Fastify()
@@ -148,7 +148,7 @@ test('default CSP directives can be accessed through plugin export', async (t) =
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
 
   const expected = { 'content-security-policy': 'default-src \'self\';base-uri \'self\';block-all-mixed-content;font-src \'self\' https: data:;form-action \'self\';frame-ancestors \'self\';img-src \'self\' data:;object-src \'none\';script-src \'self\';script-src-attr \'none\';style-src \'self\' https: \'unsafe-inline\';upgrade-insecure-requests' }
@@ -156,7 +156,7 @@ test('default CSP directives can be accessed through plugin export', async (t) =
   t.has(response.headers, expected)
 })
 
-test('auto generate nonce pre request', async (t) => {
+test('It should auto generate nonce per request', async (t) => {
   t.plan(7)
 
   const fastify = Fastify()
@@ -171,19 +171,19 @@ test('auto generate nonce pre request', async (t) => {
 
   let response
 
-  response = await fastify.inject({ method: 'GET', url: '/' })
+  response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
   t.ok(cspCache.script)
   t.ok(cspCache.style)
 
-  response = await fastify.inject({ method: 'GET', url: '/' })
+  response = await fastify.inject({ method: 'GET', path: '/' })
   const newCsp = response.json()
   t.not(cspCache, newCsp)
   t.ok(cspCache.script)
   t.ok(cspCache.style)
 })
 
-test('allow merging options for enableCSPNonces', async (t) => {
+test('It should allow merging options for enableCSPNonces', async (t) => {
   t.plan(4)
 
   const fastify = Fastify()
@@ -203,7 +203,7 @@ test('allow merging options for enableCSPNonces', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  const response = await fastify.inject({ method: 'GET', url: '/' })
+  const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
   t.ok(cspCache.script)
@@ -213,7 +213,7 @@ test('allow merging options for enableCSPNonces', async (t) => {
   })
 })
 
-test('nonce array is not stacked in csp header', async (t) => {
+test('It should not stack nonce array in csp header', async (t) => {
   t.plan(8)
 
   const fastify = Fastify()
@@ -233,7 +233,7 @@ test('nonce array is not stacked in csp header', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  let response = await fastify.inject({ method: 'GET', url: '/' })
+  let response = await fastify.inject({ method: 'GET', path: '/' })
   let cspCache = response.json()
 
   t.ok(cspCache.script)
@@ -242,7 +242,7 @@ test('nonce array is not stacked in csp header', async (t) => {
     'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 
-  response = await fastify.inject({ method: 'GET', url: '/' })
+  response = await fastify.inject({ method: 'GET', path: '/' })
   cspCache = response.json()
 
   t.ok(cspCache.script)
@@ -252,7 +252,7 @@ test('nonce array is not stacked in csp header', async (t) => {
   })
 })
 
-test('access the correct options property', async (t) => {
+test('It should access the correct options property', async (t) => {
   t.plan(4)
 
   const fastify = Fastify()
@@ -272,7 +272,7 @@ test('access the correct options property', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  const response = await fastify.inject({ method: 'GET', url: '/' })
+  const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
   t.ok(cspCache.script)
@@ -282,7 +282,7 @@ test('access the correct options property', async (t) => {
   })
 })
 
-test('do not set script-src or style-src', async (t) => {
+test('It should not set script-src or style-src', async (t) => {
   t.plan(4)
 
   const fastify = Fastify()
@@ -300,7 +300,7 @@ test('do not set script-src or style-src', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  const response = await fastify.inject({ method: 'GET', url: '/' })
+  const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
   t.ok(cspCache.script)
@@ -348,7 +348,7 @@ test('It should add hooks correctly', async (t) => {
   }
 
   await fastify.inject({
-    url: '/one',
+    path: '/one',
     method: 'GET'
   }).then((response) => {
     t.equal(response.statusCode, 200)
@@ -361,7 +361,7 @@ test('It should add hooks correctly', async (t) => {
   })
 
   await fastify.inject({
-    url: '/two',
+    path: '/two',
     method: 'GET'
   }).then((response) => {
     t.equal(response.statusCode, 200)
@@ -374,7 +374,7 @@ test('It should add hooks correctly', async (t) => {
   })
 
   await fastify.inject({
-    url: '/three',
+    path: '/three',
     method: 'GET',
     headers: {
       'accept-encoding': 'deflate'
