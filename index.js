@@ -20,7 +20,7 @@ function helmetPlugin (fastify, options, next) {
       if (typeof routeOptions.helmet === 'object') {
         const { enableCSPNonces: enableRouteCSPNonces, ...helmetRouteConfiguration } = routeOptions.helmet
 
-        // If route helmet route options are set they overwrite the global helmet configuration
+        // If route helmet options are set they overwrite the global helmet configuration
         const mergedHelmetConfiguration = Object.assign({}, globalConfiguration, helmetRouteConfiguration)
 
         buildRouteHooks(mergedHelmetConfiguration, routeOptions)
