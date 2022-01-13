@@ -11,7 +11,7 @@ declare module 'fastify' {
       script: string;
       style: string;
     },
-    helmet: typeof helmet
+    helmet: (opts?: HelmetOptions) => typeof helmet
   }
 
   export interface RouteOptions extends FastifyHelmetRouteOptions {}

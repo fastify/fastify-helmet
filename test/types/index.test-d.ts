@@ -106,14 +106,14 @@ const appSeven = fastify();
 appSeven.register(fastifyHelmet, { global: true });
 
 appSeven.get('/route-with-disabled-helmet', { helmet: false }, function (request, reply) {
-  expectType<typeof helmet>(reply.helmet);
+  expectType<typeof helmet>(reply.helmet());
 });
 
 expectError(
   appSeven.get('/route-with-disabled-helmet', {
     helmet: 'trigger a typescript error'
   }, function (request, reply) {
-    expectType<typeof helmet>(reply.helmet);
+    expectType<typeof helmet>(reply.helmet());
   })
 );
 
@@ -122,7 +122,7 @@ const appEight = fastify();
 appEight.register(fastifyHelmet, { global: false });
 
 appEight.get('/disabled-helmet', function (request, reply) {
-  expectType<typeof helmet>(reply.helmet);
+  expectType<typeof helmet>(reply.helmet(helmetOptions));
 });
 
 const routeHelmetOptions = {
@@ -161,7 +161,17 @@ const routeHelmetOptions = {
 expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions)
 
 appEight.get('/enabled-helmet', routeHelmetOptions, function (request, reply) {
-  expectType<typeof helmet>(reply.helmet);
+  expectType<typeof helmet>(reply.helmet());
+  expectType<{
+    script: string;
+    style: string;
+  }>(reply.cspNonce);
+})
+
+appEight.get('/enable-framegard', {
+  helmet: { frameguard: true }
+}, function (request, reply) {
+  expectType<typeof helmet>(reply.helmet());
   expectType<{
     script: string;
     style: string;
