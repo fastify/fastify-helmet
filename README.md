@@ -35,10 +35,10 @@ fastify.listen(3000, err => {
 
 ## How it works
 
-`fastify-helmet` is just a tiny wrapper around helmet that adds an `'onRequest'` hook
+`fastify-helmet` is a tiny wrapper around helmet that adds an `'onRequest'` hook
 and a `reply.helmet` decorator.
 
-It accepts the same options than Helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/docs/).
+It accepts the same options as helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/docs/).
 
 ### Apply Helmet to all your application routes
 
