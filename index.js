@@ -116,6 +116,8 @@ function buildRouteHooks (configuration, routeOptions, decorateOnly) {
     return
   }
 
+  // At this point `routeOptions.onRequest` is an array
+  // we just have to push our `onRequest` function
   routeOptions.onRequest.push(onRequest)
 
   function onRequest (request, reply, next) {
