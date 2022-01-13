@@ -11,7 +11,7 @@ Important security headers for Fastify. It is a tiny wrapper around
 
 ## Install
 ```
-npm i fastify-helmet
+npm install --save fastify-helmet
 ```
 
 ## Usage
@@ -88,7 +88,11 @@ fastify.get('/route-with-enabled-helmet', {
 // that allows us to apply helmet conditionally
 fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
   if (condition) {
-    reply.helmet()
+    // we apply the defaut options
+    await reply.helmet()
+  } else {
+    // we apply customized options
+    await reply.helmet({ frameguard: false })
   }
 
   return { 
