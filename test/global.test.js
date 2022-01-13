@@ -388,3 +388,116 @@ test('It should add hooks correctly', async (t) => {
     t.error(err)
   })
 })
+
+test('It should add the `helmet` reply decorator', async (t) => {
+  t.plan(3)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/', async (request, reply) => {
+    t.ok(reply.helmet)
+    t.not(reply.helmet, null)
+
+    await reply.helmet()
+    return { message: 'ok' }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  t.has(response.headers, expected)
+})
+
+test('It should be able to pass custom options to the `helmet` reply decorator', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/', async (request, reply) => {
+    t.ok(reply.helmet)
+    t.not(reply.helmet, null)
+
+    await reply.helmet({ frameguard: false })
+    return { message: 'ok' }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const notExpected = {
+    'x-frame-options': 'SAMEORIGIN'
+  }
+
+  t.notMatch(response.headers, notExpected)
+  t.has(response.headers, expected)
+})
+
+test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
+  t.plan(8)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { global: true })
+
+  fastify.get('/:condition', { helmet: false }, async (request, reply) => {
+    const { condition } = request.params
+
+    t.ok(reply.helmet)
+    t.not(reply.helmet, null)
+
+    if (condition !== 'frameguard') {
+      await reply.helmet({ frameguard: false })
+    } else {
+      await reply.helmet({ frameguard: true })
+    }
+    return { message: 'ok' }
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const maybeExpected = {
+    'x-frame-options': 'SAMEORIGIN'
+  }
+  let response
+
+  response = await fastify.inject({
+    method: 'GET',
+    path: '/no-frameguard'
+  })
+
+  t.notMatch(response.headers, maybeExpected)
+  t.has(response.headers, expected)
+
+  response = await fastify.inject({
+    method: 'GET',
+    path: '/frameguard'
+  })
+
+  t.has(response.headers, maybeExpected)
+  t.has(response.headers, expected)
+})

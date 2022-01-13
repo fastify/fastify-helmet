@@ -8,7 +8,7 @@ test('It should apply route specific helmet options over the global options', as
   t.plan(2)
 
   const fastify = Fastify()
-  await fastify.register(helmet, { global: false })
+  await fastify.register(helmet, { global: true })
 
   fastify.get('/', { helmet: { frameguard: false } }, (request, reply) => {
     reply.send({ hello: 'world' })
@@ -16,7 +16,7 @@ test('It should apply route specific helmet options over the global options', as
 
   const response = await fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   })
 
   const notExpected = {
@@ -58,7 +58,7 @@ test('It should disable helmet on specific route when route `helmet` option is s
 
   await fastify.inject({
     method: 'GET',
-    url: '/disabled'
+    path: '/disabled'
   }).then((response) => {
     t.notMatch(response.headers, helmetHeaders)
   }).catch((err) => {
@@ -67,7 +67,7 @@ test('It should disable helmet on specific route when route `helmet` option is s
 
   await fastify.inject({
     method: 'GET',
-    url: '/enabled'
+    path: '/enabled'
   }).then((response) => {
     t.has(response.headers, helmetHeaders)
   }).catch((err) => {
@@ -75,7 +75,7 @@ test('It should disable helmet on specific route when route `helmet` option is s
   })
 })
 
-test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` option is set to true', async (t) => {
+test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` option is set to `true`', async (t) => {
   t.plan(4)
 
   const fastify = Fastify()
@@ -101,7 +101,7 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
     reply.send(reply.cspNonce)
   })
 
-  const response = await fastify.inject({ method: 'GET', url: '/' })
+  const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
   t.ok(cspCache.script)
@@ -111,7 +111,7 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
   })
 })
 
-test('It should add CSPNonce decorator and hooks with default options when route `enableCSPNonces` option is set to true', async (t) => {
+test('It should add CSPNonce decorator and hooks with default options when route `enableCSPNonces` option is set to `true`', async (t) => {
   t.plan(8)
 
   const fastify = Fastify()
@@ -142,16 +142,104 @@ test('It should add CSPNonce decorator and hooks with default options when route
 
   let response
 
-  response = await fastify.inject({ method: 'GET', url: '/with-csp' })
+  response = await fastify.inject({ method: 'GET', path: '/with-csp' })
   const cspCache = response.json()
   t.ok(cspCache.script)
   t.ok(cspCache.style)
 
-  response = await fastify.inject({ method: 'GET', url: '/with-csp' })
+  response = await fastify.inject({ method: 'GET', path: '/with-csp' })
   const newCsp = response.json()
   t.not(cspCache, newCsp)
   t.ok(cspCache.script)
   t.ok(cspCache.style)
+})
+
+test('It should not add CSPNonce decorator when route `enableCSPNonces` option is set to `false`', async (t) => {
+  t.plan(8)
+
+  const fastify = Fastify()
+
+  await fastify.register(helmet, {
+    global: true,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/with-csp', (request, reply) => {
+    t.ok(reply.cspNonce)
+    reply.send(reply.cspNonce)
+  })
+
+  fastify.get('/no-csp', { helmet: { enableCSPNonces: false } }, (request, reply) => {
+    t.equal(reply.cspNonce, null)
+    reply.send({ message: 'no csp' })
+  })
+
+  fastify.inject({
+    method: 'GET',
+    path: '/no-csp'
+  })
+
+  let response
+
+  response = await fastify.inject({ method: 'GET', path: '/with-csp' })
+  const cspCache = response.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+
+  response = await fastify.inject({ method: 'GET', path: '/with-csp' })
+  const newCsp = response.json()
+  t.not(cspCache, newCsp)
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+})
+
+test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
+  t.plan(8)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/:condition', async (request, reply) => {
+    const { condition } = request.params
+
+    t.ok(reply.helmet)
+    t.not(reply.helmet, null)
+
+    if (condition !== 'frameguard') {
+      await reply.helmet({ frameguard: false })
+    } else {
+      await reply.helmet({ frameguard: true })
+    }
+    return { message: 'ok' }
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const maybeExpected = {
+    'x-frame-options': 'SAMEORIGIN'
+  }
+  let response
+
+  response = await fastify.inject({
+    method: 'GET',
+    path: '/no-frameguard'
+  })
+
+  t.notMatch(response.headers, maybeExpected)
+  t.has(response.headers, expected)
+
+  response = await fastify.inject({
+    method: 'GET',
+    path: '/frameguard'
+  })
+
+  t.has(response.headers, maybeExpected)
+  t.has(response.headers, expected)
 })
 
 test('It should throw an error when route specific helmet options are of an invalid type', (t) => {
@@ -166,7 +254,7 @@ test('It should throw an error when route specific helmet options are of an inva
 
   fastify.inject({
     method: 'GET',
-    url: '/'
+    path: '/'
   }).catch((err) => {
     if (err) {
       t.ok(err)
