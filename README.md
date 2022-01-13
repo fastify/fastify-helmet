@@ -88,7 +88,7 @@ fastify.get('/route-with-enabled-helmet', {
 // that allows us to apply helmet conditionally
 fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
   if (condition) {
-    // we apply the defaut options
+    // we apply the default options
     await reply.helmet()
   } else {
     // we apply customized options
@@ -103,7 +103,7 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
 
 ### `helmet` route option
 
-`fastify-helmet` allows you to enable, disable and customize helmet for each one of your application hook by using the 
+`fastify-helmet` allows you to enable, disable, and customize helmet for each one of your application hook by using the 
 `helmet` shorthand route option when you register your application routes.
 
 If you want to disable helmet for a specific endpoint you must pass `{ helmet: false }` to your route options.
