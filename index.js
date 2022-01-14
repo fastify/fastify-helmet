@@ -5,7 +5,7 @@ const fp = require('fastify-plugin')
 const helmet = require('helmet')
 
 function helmetPlugin (fastify, options, next) {
-  // helmet will throw when any options is explicitly set to "true"
+  // helmet will throw when any option is explicitly set to "true"
   // using ECMAScript destructuring is a clean workaround as we do not need to alter options
   const { enableCSPNonces, global, ...globalConfiguration } = options
 

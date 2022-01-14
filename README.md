@@ -44,7 +44,7 @@ It accepts the same options as helmet, and you can see more in [the helmet docum
 
 By passing `{ global: true }` into the options, `fastify-helmet` allows you to register Helmet for all your application
 routes by default. If you want a more granular control on how to apply Helmet to your application you can choose to
-disable it on a global scope by passing `{ global: false }` to the options. By default this option is set to `true`.
+disable it on a global scope by passing `{ global: false }` to the options. By default, this option is set to `true`.
 
 #### Example - enable `fastify-helmet` globally
 
@@ -103,12 +103,12 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
 
 ### `helmet` route option
 
-`fastify-helmet` allows you to enable, disable, and customize helmet for each one of your application hook by using the 
+`fastify-helmet` allows you to enable, disable, and customize helmet for each one of your application hooks by using the 
 `helmet` shorthand route option when you register your application routes.
 
 If you want to disable helmet for a specific endpoint you must pass `{ helmet: false }` to your route options.
 
-If you want to enable or customize helmet for a specific endpoint you must pass an helmet configuration object to your
+If you want to enable or customize helmet for a specific endpoint you must pass a helmet configuration object to your
 route options. E.g.: `{ helmet: { frameguard: false } }`.
 
 #### Example - `fastify-helmet` configuration using the `helmet` shorthand route option
