@@ -3,11 +3,16 @@
   "version": "6.0.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "lint": "standard",
-    "lint:fix": "standard --fix",
-    "test": "standard | snazzy && tap test.js && npm run typescript",
-    "test:ci": "standard | snazzy && tap test.js --coverage-report=lcovonly && npm run typescript",
+    "coverage": "npm run unit -- --coverage-report=lcovonly",
+    "lint": "standard | snazzy",
+    "lint:fix": "standard --fix | snazzy",
+    "test": "npm run lint && npm run unit && npm run typescript",
+    "test:ci": "npm run lint && npm run coverage && npm run typescript",
+    "unit": "tap -J \"test/*.test.js\"",
+    "unit:report": "npm run unit -- --coverage-report=html",
+    "unit:verbose": "npm run unit -- -Rspec",
     "typescript": "tsd"
   },
   "repository": {
@@ -31,17 +36,20 @@
   },
   "homepage": "https://github.com/fastify/fastify-helmet#readme",
   "devDependencies": {
-    "@types/node": "^17.0.0",
-    "fastify": "^3.0.0",
+    "@types/node": "^17.0.8",
+    "fastify": "^3.25.3",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
-    "standard": "^16.0.2",
-    "tap": "^15.0.0",
-    "tsd": "^0.19.0",
-    "typescript": "^4.0.2"
+    "standard": "^16.0.4",
+    "tap": "^15.1.6",
+    "tsd": "^0.19.1",
+    "typescript": "^4.5.4"
   },
   "dependencies": {
     "fastify-plugin": "^3.0.0",
     "helmet": "^5.0.1"
+  },
+  "tsd": {
+    "directory": "test/types"
   }
 }
