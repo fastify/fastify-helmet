@@ -419,6 +419,42 @@ test('It should add the `helmet` reply decorator', async (t) => {
   t.has(response.headers, expected)
 })
 
+test('It should not throw when trying to add the `helmet` reply decorator if it already exists', async (t) => {
+  t.plan(3)
+
+  const fastify = Fastify()
+
+  // We decorate the reply with helmet to trigger the existing check
+  fastify.decorateReply('helmet', null)
+
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/', async (request, reply) => {
+    t.ok(reply.helmet)
+    t.not(reply.helmet, null)
+
+    await reply.helmet()
+    return { message: 'ok' }
+  })
+
+  await fastify.ready()
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  t.has(response.headers, expected)
+})
+
 test('It should be able to pass custom options to the `helmet` reply decorator', async (t) => {
   t.plan(4)
 

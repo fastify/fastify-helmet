@@ -11,8 +11,10 @@ function helmetPlugin (fastify, options, next) {
 
   const isGlobal = typeof global === 'boolean' ? global : true
 
-  // We initialize the `helmet` reply decorator
-  fastify.decorateReply('helmet', null)
+  // We initialize the `helmet` reply decorator only if it does not already exists
+  if (!fastify.hasReplyDecorator('helmet')) {
+    fastify.decorateReply('helmet', null)
+  }
 
   // We will add the onRequest helmet middleware functions through the onRoute hook if needed
   fastify.addHook('onRoute', (routeOptions) => {
