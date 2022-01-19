@@ -38,8 +38,9 @@ async function helmetPlugin (fastify, options) {
       ? request.context.config.helmet
       : undefined
 
-    if (routeOptions) {
+    if (typeof routeOptions !== 'undefined') {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
+      // If route helmet options are set they overwrite the global helmet configuration
       const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
       replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
@@ -65,6 +66,8 @@ async function helmetPlugin (fastify, options) {
       buildHelmetOnRoutes(request, reply, next, mergedHelmetConfiguration, enableRouteCSPNonces)
       return next()
     } else if (isGlobal) {
+      // if the plugin is set globally (meaning that all the routes will be decorated)
+      // As the endpoint, does not have a custom helmet configuration, use the global one.
       buildHelmetOnRoutes(request, reply, next, globalConfiguration, enableCSPNonces)
       return next()
     }
@@ -90,7 +93,7 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
   }
 }
 
-function buildHelmetOnRoutes (request, reply, next, configuration, enableCSP) {
+async function buildHelmetOnRoutes (request, reply, next, configuration, enableCSP) {
   if (enableCSP === true) {
     const cspDirectives = configuration.contentSecurityPolicy
       ? configuration.contentSecurityPolicy.directives
