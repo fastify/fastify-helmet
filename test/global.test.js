@@ -14,6 +14,8 @@ test('It should set the default headers', async (t) => {
     reply.send({ hello: 'world' })
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -39,6 +41,8 @@ test('It should not set the default headers when global is set to `false`', asyn
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
   })
+
+  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
@@ -66,6 +70,8 @@ test('It should set the default cross-domain-policy', async (t) => {
     reply.send({ hello: 'world' })
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -89,6 +95,8 @@ test('It should be able to set cross-domain-policy', async (t) => {
     reply.send({ hello: 'world' })
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -110,6 +118,8 @@ test('It should not disable the other headers when disabling one header', async 
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
   })
+
+  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
@@ -146,6 +156,8 @@ test('It should be able to access default CSP directives through plugin export',
     reply.send({ hello: 'world' })
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -168,6 +180,8 @@ test('It should auto generate nonce per request', async (t) => {
     t.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
+
+  await fastify.ready()
 
   let response
 
@@ -203,6 +217,8 @@ test('It should allow merging options for enableCSPNonces', async (t) => {
     reply.send(reply.cspNonce)
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
@@ -232,6 +248,8 @@ test('It should not stack nonce array in csp header', async (t) => {
     t.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
+
+  await fastify.ready()
 
   let response = await fastify.inject({ method: 'GET', path: '/' })
   let cspCache = response.json()
@@ -272,6 +290,8 @@ test('It should access the correct options property', async (t) => {
     reply.send(reply.cspNonce)
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
@@ -300,6 +320,8 @@ test('It should not set script-src or style-src', async (t) => {
     reply.send(reply.cspNonce)
   })
 
+  await fastify.ready()
+
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
@@ -311,7 +333,7 @@ test('It should not set script-src or style-src', async (t) => {
 })
 
 test('It should add hooks correctly', async (t) => {
-  t.plan(14)
+  t.plan(19)
 
   const fastify = Fastify()
 
@@ -319,25 +341,38 @@ test('It should add hooks correctly', async (t) => {
     reply.header('x-fastify-global-test', 'ok')
   })
 
+  fastify.addHook('onRequest', async (request, reply) => {
+    reply.header('x-fastify-send-test', 'ok')
+  })
+
   await fastify.register(helmet, { global: true })
 
   fastify.get('/one', {
     onRequest: [
       async (request, reply) => { reply.header('x-fastify-test-one', 'ok') }
+    ],
+    onSend: [
+      async (request, reply) => { reply.header('x-fastify-send-test-one', 'ok') }
     ]
   }, (request, reply) => {
     return { message: 'one' }
   })
 
   fastify.get('/two', {
-    onRequest: async (request, reply) => { reply.header('x-fastify-test-two', 'ok') }
+    onRequest: async (request, reply) => { reply.header('x-fastify-test-two', 'ok') },
+    onSend: async (request, reply) => { reply.header('x-fastify-send-test-two', 'ok') }
   }, (request, reply) => {
     return { message: 'two' }
   })
 
-  fastify.get('/three', { onRequest: null }, (request, reply) => {
+  fastify.get('/three', {
+    onRequest: null,
+    onSend: null
+  }, (request, reply) => {
     return { message: 'three' }
   })
+
+  await fastify.ready()
 
   const expected = {
     'x-dns-prefetch-control': 'off',
@@ -353,7 +388,9 @@ test('It should add hooks correctly', async (t) => {
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
+    t.equal(response.headers['x-fastify-send-test'], 'ok')
     t.equal(response.headers['x-fastify-test-one'], 'ok')
+    t.equal(response.headers['x-fastify-send-test-one'], 'ok')
     t.has(response.headers, expected)
     t.equal(JSON.parse(response.payload).message, 'one')
   }).catch((err) => {
@@ -366,7 +403,9 @@ test('It should add hooks correctly', async (t) => {
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
+    t.equal(response.headers['x-fastify-send-test'], 'ok')
     t.equal(response.headers['x-fastify-test-two'], 'ok')
+    t.equal(response.headers['x-fastify-send-test-two'], 'ok')
     t.has(response.headers, expected)
     t.equal(JSON.parse(response.payload).message, 'two')
   }).catch((err) => {
@@ -375,13 +414,11 @@ test('It should add hooks correctly', async (t) => {
 
   await fastify.inject({
     path: '/three',
-    method: 'GET',
-    headers: {
-      'accept-encoding': 'deflate'
-    }
+    method: 'GET'
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
+    t.equal(response.headers['x-fastify-send-test'], 'ok')
     t.has(response.headers, expected)
     t.equal(JSON.parse(response.payload).message, 'three')
   }).catch((err) => {
@@ -393,40 +430,6 @@ test('It should add the `helmet` reply decorator', async (t) => {
   t.plan(3)
 
   const fastify = Fastify()
-  await fastify.register(helmet, { global: false })
-
-  fastify.get('/', async (request, reply) => {
-    t.ok(reply.helmet)
-    t.not(reply.helmet, null)
-
-    await reply.helmet()
-    return { message: 'ok' }
-  })
-
-  const response = await fastify.inject({
-    method: 'GET',
-    path: '/'
-  })
-
-  const expected = {
-    'x-dns-prefetch-control': 'off',
-    'x-frame-options': 'SAMEORIGIN',
-    'x-download-options': 'noopen',
-    'x-content-type-options': 'nosniff',
-    'x-xss-protection': '0'
-  }
-
-  t.has(response.headers, expected)
-})
-
-test('It should not throw when trying to add the `helmet` reply decorator if it already exists', async (t) => {
-  t.plan(3)
-
-  const fastify = Fastify()
-
-  // We decorate the reply with helmet to trigger the existing check
-  fastify.decorateReply('helmet', null)
-
   await fastify.register(helmet, { global: false })
 
   fastify.get('/', async (request, reply) => {
@@ -455,6 +458,48 @@ test('It should not throw when trying to add the `helmet` reply decorator if it 
   t.has(response.headers, expected)
 })
 
+test('It should not throw when trying to add the `helmet` and `cspNonce` reply decorators if they already exist', async (t) => {
+  t.plan(7)
+
+  const fastify = Fastify()
+
+  // We decorate the reply with helmet and cspNonce to trigger the existence check
+  fastify.decorateReply('helmet', null)
+  fastify.decorateReply('cspNonce', null)
+
+  await fastify.register(helmet, { enableCSPNonces: true, global: true })
+
+  fastify.get('/', async (request, reply) => {
+    t.ok(reply.helmet)
+    t.not(reply.helmet, null)
+    t.ok(reply.cspNonce)
+    t.not(reply.cspNonce, null)
+
+    reply.send(reply.cspNonce)
+  })
+
+  await fastify.ready()
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  const cspCache = response.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  t.has(response.headers, expected)
+})
+
 test('It should be able to pass custom options to the `helmet` reply decorator', async (t) => {
   t.plan(4)
 
@@ -468,6 +513,8 @@ test('It should be able to pass custom options to the `helmet` reply decorator',
     await reply.helmet({ frameguard: false })
     return { message: 'ok' }
   })
+
+  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
@@ -490,7 +537,7 @@ test('It should be able to pass custom options to the `helmet` reply decorator',
 })
 
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
-  t.plan(8)
+  t.plan(10)
 
   const fastify = Fastify()
   await fastify.register(helmet, { global: true })
@@ -509,6 +556,8 @@ test('It should be able to conditionally apply the middlewares through the `helm
     return { message: 'ok' }
   })
 
+  await fastify.ready()
+
   const expected = {
     'x-dns-prefetch-control': 'off',
     'x-download-options': 'noopen',
@@ -519,21 +568,85 @@ test('It should be able to conditionally apply the middlewares through the `helm
   const maybeExpected = {
     'x-frame-options': 'SAMEORIGIN'
   }
-  let response
 
-  response = await fastify.inject({
-    method: 'GET',
-    path: '/no-frameguard'
-  })
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/no-frameguard'
+    })
 
-  t.notMatch(response.headers, maybeExpected)
-  t.has(response.headers, expected)
+    t.equal(response.statusCode, 200)
+    t.notMatch(response.headers, maybeExpected)
+    t.has(response.headers, expected)
+  }
 
-  response = await fastify.inject({
+  const response = await fastify.inject({
     method: 'GET',
     path: '/frameguard'
   })
 
+  t.equal(response.statusCode, 200)
   t.has(response.headers, maybeExpected)
   t.has(response.headers, expected)
+})
+
+test('It should apply helmet headers when returning error messages', async (t) => {
+  t.plan(6)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { enableCSPNonces: true })
+
+  fastify.get('/', {
+    onRequest: async (request, reply) => {
+      reply.code(401)
+      reply.send({ message: 'Unauthorized' })
+    }
+  }, async (request, reply) => {
+    return { message: 'ok' }
+  })
+
+  fastify.get('/error-handler', {
+  }, async (request, reply) => {
+    return Promise.reject(new Error('error handler triggered'))
+  })
+
+  await fastify.ready()
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/'
+    })
+
+    t.equal(response.statusCode, 401)
+    t.has(response.headers, expected)
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/error-handler'
+    })
+
+    t.equal(response.statusCode, 500)
+    t.has(response.headers, expected)
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/404-route'
+    })
+
+    t.equal(response.statusCode, 404)
+    t.has(response.headers, expected)
+  }
 })
