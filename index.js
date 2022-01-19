@@ -24,15 +24,9 @@ async function helmetPlugin (fastify, options) {
   fastify.addHook('onRoute', (routeOptions) => {
     if (typeof routeOptions.helmet !== 'undefined') {
       if (typeof routeOptions.helmet === 'object') {
-        routeOptions.config = Object.assign(
-          routeOptions.config || Object.create(null),
-          { helmet: routeOptions.helmet }
-        )
+        routeOptions.config = Object.assign(routeOptions.config || Object.create(null), { helmet: routeOptions.helmet })
       } else if (routeOptions.helmet === false) {
-        routeOptions.config = Object.assign(
-          routeOptions.config || Object.create(null),
-          { helmet: { skipRoute: true } }
-        )
+        routeOptions.config = Object.assign(routeOptions.config || Object.create(null), { helmet: { skipRoute: true } })
       } else {
         throw new Error('Unknown value for route helmet configuration')
       }
@@ -46,7 +40,7 @@ async function helmetPlugin (fastify, options) {
 
     if (routeOptions) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
-      const mergedHelmetConfiguration = Object.assign({}, globalConfiguration, helmetRouteConfiguration)
+      const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
       replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
     } else {
@@ -66,7 +60,7 @@ async function helmetPlugin (fastify, options) {
       }
 
       // If route helmet options are set they overwrite the global helmet configuration
-      const mergedHelmetConfiguration = Object.assign({}, globalConfiguration, helmetRouteConfiguration)
+      const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
       buildHelmetOnRoutes(request, reply, next, mergedHelmetConfiguration, enableRouteCSPNonces)
       return next()
@@ -88,7 +82,9 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
   }
 
   reply.helmet = function (opts) {
-    const helmetConfiguration = opts ? Object.assign({}, configuration, opts) : configuration
+    const helmetConfiguration = opts
+      ? Object.assign(Object.create(null), configuration, opts)
+      : configuration
 
     return helmet(helmetConfiguration)(request.raw, reply.raw, (err) => new Error(err))
   }
@@ -119,11 +115,8 @@ function buildHelmetOnRoutes (request, reply, next, configuration, enableCSP) {
     directives[styleKey] = Array.isArray(directives[styleKey]) ? [...directives[styleKey]] : []
     directives[styleKey].push(`'nonce-${styleCSPNonce}'`)
 
-    const mergedHelmetConfiguration = Object.assign(
-      {},
-      configuration,
-      { contentSecurityPolicy: { directives, reportOnly: cspReportOnly } }
-    )
+    const contentSecurityPolicy = { directives, reportOnly: cspReportOnly }
+    const mergedHelmetConfiguration = Object.assign(Object.create(null), configuration, { contentSecurityPolicy })
 
     helmet(mergedHelmetConfiguration)(request.raw, reply.raw, next)
   } else {
