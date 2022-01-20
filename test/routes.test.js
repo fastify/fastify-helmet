@@ -14,8 +14,6 @@ test('It should apply route specific helmet options over the global options', as
     reply.send({ hello: 'world' })
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -49,8 +47,6 @@ test('It should disable helmet on specific route when route `helmet` option is s
   fastify.get('/enabled', (request, reply) => {
     reply.send({ hello: 'enabled' })
   })
-
-  await fastify.ready()
 
   const helmetHeaders = {
     'x-frame-options': 'SAMEORIGIN',
@@ -105,8 +101,6 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
     reply.send(reply.cspNonce)
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
@@ -140,8 +134,6 @@ test('It should add CSPNonce decorator and hooks with default options when route
     t.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
-
-  await fastify.ready()
 
   fastify.inject({
     method: 'GET',
@@ -182,8 +174,6 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
     reply.send({ message: 'no csp' })
   })
 
-  await fastify.ready()
-
   fastify.inject({
     method: 'GET',
     path: '/no-csp'
@@ -222,8 +212,6 @@ test('It should be able to conditionally apply the middlewares through the `helm
     }
     return { message: 'ok' }
   })
-
-  await fastify.ready()
 
   const expected = {
     'x-dns-prefetch-control': 'off',

@@ -14,8 +14,6 @@ test('It should set the default headers', async (t) => {
     reply.send({ hello: 'world' })
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -41,8 +39,6 @@ test('It should not set the default headers when global is set to `false`', asyn
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
   })
-
-  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
@@ -70,8 +66,6 @@ test('It should set the default cross-domain-policy', async (t) => {
     reply.send({ hello: 'world' })
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -95,8 +89,6 @@ test('It should be able to set cross-domain-policy', async (t) => {
     reply.send({ hello: 'world' })
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -118,8 +110,6 @@ test('It should not disable the other headers when disabling one header', async 
   fastify.get('/', (request, reply) => {
     reply.send({ hello: 'world' })
   })
-
-  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
@@ -156,8 +146,6 @@ test('It should be able to access default CSP directives through plugin export',
     reply.send({ hello: 'world' })
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -180,8 +168,6 @@ test('It should auto generate nonce per request', async (t) => {
     t.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
-
-  await fastify.ready()
 
   let response
 
@@ -217,8 +203,6 @@ test('It should allow merging options for enableCSPNonces', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
@@ -248,8 +232,6 @@ test('It should not stack nonce array in csp header', async (t) => {
     t.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
-
-  await fastify.ready()
 
   let response = await fastify.inject({ method: 'GET', path: '/' })
   let cspCache = response.json()
@@ -290,8 +272,6 @@ test('It should access the correct options property', async (t) => {
     reply.send(reply.cspNonce)
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
@@ -319,8 +299,6 @@ test('It should not set script-src or style-src', async (t) => {
     t.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
-
-  await fastify.ready()
 
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
@@ -371,8 +349,6 @@ test('It should add hooks correctly', async (t) => {
   }, (request, reply) => {
     return { message: 'three' }
   })
-
-  await fastify.ready()
 
   const expected = {
     'x-dns-prefetch-control': 'off',
@@ -440,8 +416,6 @@ test('It should add the `helmet` reply decorator', async (t) => {
     return { message: 'ok' }
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -478,8 +452,6 @@ test('It should not throw when trying to add the `helmet` and `cspNonce` reply d
     reply.send(reply.cspNonce)
   })
 
-  await fastify.ready()
-
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
@@ -513,8 +485,6 @@ test('It should be able to pass custom options to the `helmet` reply decorator',
     await reply.helmet({ frameguard: false })
     return { message: 'ok' }
   })
-
-  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
@@ -555,8 +525,6 @@ test('It should be able to conditionally apply the middlewares through the `helm
     }
     return { message: 'ok' }
   })
-
-  await fastify.ready()
 
   const expected = {
     'x-dns-prefetch-control': 'off',
@@ -609,8 +577,6 @@ test('It should apply helmet headers when returning error messages', async (t) =
   }, async (request, reply) => {
     return Promise.reject(new Error('error handler triggered'))
   })
-
-  await fastify.ready()
 
   const expected = {
     'x-dns-prefetch-control': 'off',
