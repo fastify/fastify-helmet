@@ -1,6 +1,8 @@
 'use strict'
 
+const stream = require('stream')
 const { test } = require('tap')
+const fp = require('fastify-plugin')
 const Fastify = require('fastify')
 const helmet = require('..')
 
@@ -599,4 +601,89 @@ test('It should apply helmet headers when returning error messages', async (t) =
     t.equal(response.statusCode, 404)
     t.has(response.headers, expected)
   }
+})
+
+// To avoid regressions.
+// ref.: https://github.com/fastify/fastify-helmet/pull/169#issuecomment-1017413835
+test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already sent` error', async (t) => {
+  t.plan(5)
+
+  const logs = []
+  const destination = new stream.Writable({
+    write: function (chunk, encoding, next) {
+      logs.push(JSON.parse(chunk))
+      next()
+    }
+  })
+
+  const fastify = Fastify({ logger: { level: 'info', stream: destination } })
+
+  await fastify.register(helmet)
+  await fastify.register(fp(async (instance, options) => {
+    instance.addHook('onRequest', async (request, reply) => {
+      const unauthorized = new Error('Unauthorized')
+
+      const errorResponse = (err) => {
+        return { error: err.message }
+      }
+
+      // We want to crash in the scope of this test
+      const crash = request.context.config.fail
+
+      Promise.resolve(crash).then((fail) => {
+        if (fail === true) {
+          reply.code(401)
+          reply.send(errorResponse(unauthorized))
+          return reply
+        }
+
+        const returned = new Error('internal server error')
+        reply.send(errorResponse(returned))
+        return reply
+      }).catch((err) => {
+        const returned = err instanceof Error ? err : Error(String(err))
+        reply.code(500)
+        reply.send(errorResponse(returned))
+        return reply
+      })
+    })
+  }, {
+    name: 'regression-plugin-test'
+  }))
+
+  fastify.get('/fail', {
+    config: { fail: true }
+  }, async (request, reply) => {
+    return { message: 'unreachable' }
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/fail'
+  })
+
+  const failure = logs.find((entry) => entry.err && entry.err.statusCode === 500)
+
+  if (failure) {
+    t.not(failure.err.message, 'Reply was already sent.')
+    t.not(failure.err.name, 'FastifyError')
+    t.not(failure.err.code, 'FST_ERR_REP_ALREADY_SENT')
+    t.not(failure.err.statusCode, 500)
+    t.not(failure.msg, 'Reply already sent')
+  }
+
+  t.equal(failure, undefined)
+
+  t.equal(response.statusCode, 401, '3')
+  t.has(response.headers, expected, '4')
+  t.equal(JSON.parse(response.payload).error, 'Unauthorized', '5')
+  t.not(JSON.parse(response.payload).message, 'unreachable', '6')
 })
