@@ -311,7 +311,7 @@ test('It should not set script-src or style-src', async (t) => {
 })
 
 test('It should add hooks correctly', async (t) => {
-  t.plan(19)
+  t.plan(14)
 
   const fastify = Fastify()
 
@@ -319,34 +319,23 @@ test('It should add hooks correctly', async (t) => {
     reply.header('x-fastify-global-test', 'ok')
   })
 
-  fastify.addHook('onRequest', async (request, reply) => {
-    reply.header('x-fastify-send-test', 'ok')
-  })
-
   await fastify.register(helmet, { global: true })
 
   fastify.get('/one', {
     onRequest: [
       async (request, reply) => { reply.header('x-fastify-test-one', 'ok') }
-    ],
-    onSend: [
-      async (request, reply) => { reply.header('x-fastify-send-test-one', 'ok') }
     ]
   }, (request, reply) => {
     return { message: 'one' }
   })
 
   fastify.get('/two', {
-    onRequest: async (request, reply) => { reply.header('x-fastify-test-two', 'ok') },
-    onSend: async (request, reply) => { reply.header('x-fastify-send-test-two', 'ok') }
+    onRequest: async (request, reply) => { reply.header('x-fastify-test-two', 'ok') }
   }, (request, reply) => {
     return { message: 'two' }
   })
 
-  fastify.get('/three', {
-    onRequest: null,
-    onSend: null
-  }, (request, reply) => {
+  fastify.get('/three', { onRequest: null }, (request, reply) => {
     return { message: 'three' }
   })
 
@@ -364,9 +353,7 @@ test('It should add hooks correctly', async (t) => {
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
-    t.equal(response.headers['x-fastify-send-test'], 'ok')
     t.equal(response.headers['x-fastify-test-one'], 'ok')
-    t.equal(response.headers['x-fastify-send-test-one'], 'ok')
     t.has(response.headers, expected)
     t.equal(JSON.parse(response.payload).message, 'one')
   }).catch((err) => {
@@ -379,9 +366,7 @@ test('It should add hooks correctly', async (t) => {
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
-    t.equal(response.headers['x-fastify-send-test'], 'ok')
     t.equal(response.headers['x-fastify-test-two'], 'ok')
-    t.equal(response.headers['x-fastify-send-test-two'], 'ok')
     t.has(response.headers, expected)
     t.equal(JSON.parse(response.payload).message, 'two')
   }).catch((err) => {
@@ -394,7 +379,6 @@ test('It should add hooks correctly', async (t) => {
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
-    t.equal(response.headers['x-fastify-send-test'], 'ok')
     t.has(response.headers, expected)
     t.equal(JSON.parse(response.payload).message, 'three')
   }).catch((err) => {
