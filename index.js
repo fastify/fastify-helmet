@@ -61,14 +61,14 @@ async function helmetPlugin (fastify, options) {
         // If route helmet options are set they overwrite the global helmet configuration
         const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
-        buildHelmetOnRoutes(request, reply, next, mergedHelmetConfiguration, enableRouteCSPNonces)
+        buildHelmetOnRoutes(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
       }
 
       return next()
     } else if (isGlobal) {
       // if the plugin is set globally (meaning that all the routes will be decorated)
       // As the endpoint, does not have a custom helmet configuration, use the global one.
-      buildHelmetOnRoutes(request, reply, next, globalConfiguration, enableCSPNonces)
+      buildHelmetOnRoutes(request, reply, globalConfiguration, enableCSPNonces)
     } else {
       // if the plugin is not global we can skip the route
     }
@@ -90,11 +90,11 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
       ? Object.assign(Object.create(null), configuration, opts)
       : configuration
 
-    return helmet(helmetConfiguration)(request.raw, reply.raw, (err) => new Error(err))
+    return helmet(helmetConfiguration)(request.raw, reply.raw, done)
   }
 }
 
-async function buildHelmetOnRoutes (request, reply, next, configuration, enableCSP) {
+async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
   if (enableCSP === true) {
     const cspDirectives = configuration.contentSecurityPolicy
       ? configuration.contentSecurityPolicy.directives
@@ -122,10 +122,15 @@ async function buildHelmetOnRoutes (request, reply, next, configuration, enableC
     const contentSecurityPolicy = { directives, reportOnly: cspReportOnly }
     const mergedHelmetConfiguration = Object.assign(Object.create(null), configuration, { contentSecurityPolicy })
 
-    helmet(mergedHelmetConfiguration)(request.raw, reply.raw, next)
+    helmet(mergedHelmetConfiguration)(request.raw, reply.raw, done)
   } else {
-    helmet(configuration)(request.raw, reply.raw, next)
+    helmet(configuration)(request.raw, reply.raw, done)
   }
+}
+
+function done (error) {
+  /* istanbul ignore next */
+  if (error) throw new Error(error)
 }
 
 module.exports = fp(helmetPlugin, {
