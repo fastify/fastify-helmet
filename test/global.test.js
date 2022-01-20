@@ -636,7 +636,7 @@ test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already s
           reply.send(errorResponse(unauthorized))
           return reply
         }
-      }).catch(() => void(0))
+      }).catch(() => undefined)
     })
   }, {
     name: 'regression-plugin-test'
