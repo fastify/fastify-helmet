@@ -636,16 +636,7 @@ test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already s
           reply.send(errorResponse(unauthorized))
           return reply
         }
-
-        const returned = new Error('internal server error')
-        reply.send(errorResponse(returned))
-        return reply
-      }).catch((err) => {
-        const returned = err instanceof Error ? err : Error(String(err))
-        reply.code(500)
-        reply.send(errorResponse(returned))
-        return reply
-      })
+      }).catch(() => void(0))
     })
   }, {
     name: 'regression-plugin-test'
