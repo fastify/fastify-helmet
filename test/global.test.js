@@ -673,8 +673,8 @@ test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already s
 
   t.equal(failure, undefined)
 
-  t.equal(response.statusCode, 401, '3')
-  t.has(response.headers, expected, '4')
-  t.equal(JSON.parse(response.payload).error, 'Unauthorized', '5')
-  t.not(JSON.parse(response.payload).message, 'unreachable', '6')
+  t.equal(response.statusCode, 401)
+  t.has(response.headers, expected)
+  t.equal(JSON.parse(response.payload).error, 'Unauthorized')
+  t.not(JSON.parse(response.payload).message, 'unreachable')
 })
