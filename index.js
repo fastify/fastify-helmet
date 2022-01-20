@@ -34,17 +34,17 @@ async function helmetPlugin (fastify, options) {
   })
 
   fastify.addHook('onRequest', async (request, reply) => {
-    const routeOptions = request.context.config && typeof request.context.config.helmet !== 'undefined'
-      ? request.context.config.helmet
-      : undefined
+    const { helmet: routeOptions } = request.context.config
 
     if (typeof routeOptions !== 'undefined') {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
       // If route helmet options are set they overwrite the global helmet configuration
       const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
+      // We decorate the reply with a fallback to the route scoped helmet options
       replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
     } else {
+      // We decorate the reply with a fallback to the global helmet options
       replyDecorators(request, reply, globalConfiguration, enableCSPNonces)
     }
   })
@@ -55,21 +55,22 @@ async function helmetPlugin (fastify, options) {
     if (typeof routeOptions !== 'undefined') {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
 
-      // If helmet route option is set to `false` we skip the route
       if (skipRoute === true) {
-        return next()
+        // If helmet route option is set to `false` we skip the route
+      } else {
+        // If route helmet options are set they overwrite the global helmet configuration
+        const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
+
+        buildHelmetOnRoutes(request, reply, next, mergedHelmetConfiguration, enableRouteCSPNonces)
       }
 
-      // If route helmet options are set they overwrite the global helmet configuration
-      const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
-
-      buildHelmetOnRoutes(request, reply, next, mergedHelmetConfiguration, enableRouteCSPNonces)
       return next()
     } else if (isGlobal) {
       // if the plugin is set globally (meaning that all the routes will be decorated)
       // As the endpoint, does not have a custom helmet configuration, use the global one.
       buildHelmetOnRoutes(request, reply, next, globalConfiguration, enableCSPNonces)
-      return next()
+    } else {
+      // if the plugin is not global we can skip the route
     }
 
     return next()
