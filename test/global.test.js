@@ -678,3 +678,40 @@ test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already s
   t.equal(JSON.parse(response.payload).error, 'Unauthorized')
   t.not(JSON.parse(response.payload).message, 'unreachable')
 })
+
+test('It should forward `helmet` error messages to `fastify-helmet`', async (t) => {
+  t.plan(3)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", () => 'bad;value']
+      }
+    }
+  })
+
+  fastify.get('/', async (request, reply) => {
+    return { message: 'ok' }
+  })
+
+  const notExpected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  t.equal(response.statusCode, 500)
+  t.equal(
+    JSON.parse(response.payload).message,
+    'Content-Security-Policy received an invalid directive value for "default-src"'
+  )
+  t.notMatch(response.headers, notExpected)
+})

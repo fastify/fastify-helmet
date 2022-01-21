@@ -42,10 +42,10 @@ async function helmetPlugin (fastify, options) {
       const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
       // We decorate the reply with a fallback to the route scoped helmet options
-      replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
+      return replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
     } else {
       // We decorate the reply with a fallback to the global helmet options
-      replyDecorators(request, reply, globalConfiguration, enableCSPNonces)
+      return replyDecorators(request, reply, globalConfiguration, enableCSPNonces)
     }
   })
 
@@ -61,14 +61,14 @@ async function helmetPlugin (fastify, options) {
         // If route helmet options are set they overwrite the global helmet configuration
         const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
-        buildHelmetOnRoutes(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
+        return buildHelmetOnRoutes(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
       }
 
       return next()
     } else if (isGlobal) {
       // if the plugin is set globally (meaning that all the routes will be decorated)
       // As the endpoint, does not have a custom helmet configuration, use the global one.
-      buildHelmetOnRoutes(request, reply, globalConfiguration, enableCSPNonces)
+      return buildHelmetOnRoutes(request, reply, globalConfiguration, enableCSPNonces)
     } else {
       // if the plugin is not global we can skip the route
     }
@@ -128,9 +128,9 @@ async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
   }
 }
 
+// Helmet forward a typeof Error object so we just need to throw it as is.
 function done (error) {
-  /* istanbul ignore next */
-  if (error) throw new Error(error)
+  if (error) throw error
 }
 
 module.exports = fp(helmetPlugin, {
