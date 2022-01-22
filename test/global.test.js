@@ -1,6 +1,8 @@
 'use strict'
 
+const stream = require('stream')
 const { test } = require('tap')
+const fp = require('fastify-plugin')
 const Fastify = require('fastify')
 const helmet = require('..')
 
@@ -375,10 +377,7 @@ test('It should add hooks correctly', async (t) => {
 
   await fastify.inject({
     path: '/three',
-    method: 'GET',
-    headers: {
-      'accept-encoding': 'deflate'
-    }
+    method: 'GET'
   }).then((response) => {
     t.equal(response.statusCode, 200)
     t.equal(response.headers['x-fastify-global-test'], 'ok')
@@ -419,30 +418,34 @@ test('It should add the `helmet` reply decorator', async (t) => {
   t.has(response.headers, expected)
 })
 
-test('It should not throw when trying to add the `helmet` reply decorator if it already exists', async (t) => {
-  t.plan(3)
+test('It should not throw when trying to add the `helmet` and `cspNonce` reply decorators if they already exist', async (t) => {
+  t.plan(7)
 
   const fastify = Fastify()
 
-  // We decorate the reply with helmet to trigger the existing check
+  // We decorate the reply with helmet and cspNonce to trigger the existence check
   fastify.decorateReply('helmet', null)
+  fastify.decorateReply('cspNonce', null)
 
-  await fastify.register(helmet, { global: false })
+  await fastify.register(helmet, { enableCSPNonces: true, global: true })
 
   fastify.get('/', async (request, reply) => {
     t.ok(reply.helmet)
     t.not(reply.helmet, null)
+    t.ok(reply.cspNonce)
+    t.not(reply.cspNonce, null)
 
-    await reply.helmet()
-    return { message: 'ok' }
+    reply.send(reply.cspNonce)
   })
-
-  await fastify.ready()
 
   const response = await fastify.inject({
     method: 'GET',
     path: '/'
   })
+
+  const cspCache = response.json()
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
 
   const expected = {
     'x-dns-prefetch-control': 'off',
@@ -490,7 +493,7 @@ test('It should be able to pass custom options to the `helmet` reply decorator',
 })
 
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
-  t.plan(8)
+  t.plan(10)
 
   const fastify = Fastify()
   await fastify.register(helmet, { global: true })
@@ -519,21 +522,249 @@ test('It should be able to conditionally apply the middlewares through the `helm
   const maybeExpected = {
     'x-frame-options': 'SAMEORIGIN'
   }
-  let response
 
-  response = await fastify.inject({
-    method: 'GET',
-    path: '/no-frameguard'
-  })
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/no-frameguard'
+    })
 
-  t.notMatch(response.headers, maybeExpected)
-  t.has(response.headers, expected)
+    t.equal(response.statusCode, 200)
+    t.notMatch(response.headers, maybeExpected)
+    t.has(response.headers, expected)
+  }
 
-  response = await fastify.inject({
+  const response = await fastify.inject({
     method: 'GET',
     path: '/frameguard'
   })
 
+  t.equal(response.statusCode, 200)
   t.has(response.headers, maybeExpected)
   t.has(response.headers, expected)
+})
+
+test('It should apply helmet headers when returning error messages', async (t) => {
+  t.plan(6)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { enableCSPNonces: true })
+
+  fastify.get('/', {
+    onRequest: async (request, reply) => {
+      reply.code(401)
+      reply.send({ message: 'Unauthorized' })
+    }
+  }, async (request, reply) => {
+    return { message: 'ok' }
+  })
+
+  fastify.get('/error-handler', {
+  }, async (request, reply) => {
+    return Promise.reject(new Error('error handler triggered'))
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/'
+    })
+
+    t.equal(response.statusCode, 401)
+    t.has(response.headers, expected)
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/error-handler'
+    })
+
+    t.equal(response.statusCode, 500)
+    t.has(response.headers, expected)
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/404-route'
+    })
+
+    t.equal(response.statusCode, 404)
+    t.has(response.headers, expected)
+  }
+})
+
+// To avoid regressions.
+// ref.: https://github.com/fastify/fastify-helmet/pull/169#issuecomment-1017413835
+test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already sent` error', async (t) => {
+  t.plan(5)
+
+  const logs = []
+  const destination = new stream.Writable({
+    write: function (chunk, encoding, next) {
+      logs.push(JSON.parse(chunk))
+      next()
+    }
+  })
+
+  const fastify = Fastify({ logger: { level: 'info', stream: destination } })
+
+  await fastify.register(helmet)
+  await fastify.register(fp(async (instance, options) => {
+    instance.addHook('onRequest', async (request, reply) => {
+      const unauthorized = new Error('Unauthorized')
+
+      const errorResponse = (err) => {
+        return { error: err.message }
+      }
+
+      // We want to crash in the scope of this test
+      const crash = request.context.config.fail
+
+      Promise.resolve(crash).then((fail) => {
+        if (fail === true) {
+          reply.code(401)
+          reply.send(errorResponse(unauthorized))
+          return reply
+        }
+      }).catch(() => undefined)
+    })
+  }, {
+    name: 'regression-plugin-test'
+  }))
+
+  fastify.get('/fail', {
+    config: { fail: true }
+  }, async (request, reply) => {
+    return { message: 'unreachable' }
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/fail'
+  })
+
+  const failure = logs.find((entry) => entry.err && entry.err.statusCode === 500)
+
+  if (failure) {
+    t.not(failure.err.message, 'Reply was already sent.')
+    t.not(failure.err.name, 'FastifyError')
+    t.not(failure.err.code, 'FST_ERR_REP_ALREADY_SENT')
+    t.not(failure.err.statusCode, 500)
+    t.not(failure.msg, 'Reply already sent')
+  }
+
+  t.equal(failure, undefined)
+
+  t.equal(response.statusCode, 401)
+  t.has(response.headers, expected)
+  t.equal(JSON.parse(response.payload).error, 'Unauthorized')
+  t.not(JSON.parse(response.payload).message, 'unreachable')
+})
+
+test('It should forward `helmet` errors to `fastify-helmet`', async (t) => {
+  t.plan(3)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", () => 'bad;value']
+      }
+    }
+  })
+
+  fastify.get('/', async (request, reply) => {
+    return { message: 'ok' }
+  })
+
+  const notExpected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  t.equal(response.statusCode, 500)
+  t.equal(
+    JSON.parse(response.payload).message,
+    'Content-Security-Policy received an invalid directive value for "default-src"'
+  )
+  t.notMatch(response.headers, notExpected)
+})
+
+test('It should be able to catch `helmet` errors with a fastify `onError` hook', async (t) => {
+  t.plan(7)
+
+  const errorDetected = []
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", () => 'bad;value']
+      }
+    }
+  })
+
+  fastify.addHook('onError', async (request, reply, error) => {
+    if (error) {
+      t.ok(error)
+      errorDetected.push(error)
+    }
+  })
+
+  fastify.get('/', async (request, reply) => {
+    return { message: 'ok' }
+  })
+
+  const notExpected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  t.equal(errorDetected.length, 0)
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  t.equal(response.statusCode, 500)
+  t.equal(
+    JSON.parse(response.payload).message,
+    'Content-Security-Policy received an invalid directive value for "default-src"'
+  )
+  t.notMatch(response.headers, notExpected)
+  t.equal(errorDetected.length, 1)
+  t.equal(
+    errorDetected[0].message,
+    'Content-Security-Policy received an invalid directive value for "default-src"'
+  )
 })

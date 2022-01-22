@@ -194,7 +194,7 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
 })
 
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
-  t.plan(8)
+  t.plan(10)
 
   const fastify = Fastify()
   await fastify.register(helmet, { global: false })
@@ -223,26 +223,29 @@ test('It should be able to conditionally apply the middlewares through the `helm
   const maybeExpected = {
     'x-frame-options': 'SAMEORIGIN'
   }
-  let response
 
-  response = await fastify.inject({
-    method: 'GET',
-    path: '/no-frameguard'
-  })
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/no-frameguard'
+    })
 
-  t.notMatch(response.headers, maybeExpected)
-  t.has(response.headers, expected)
+    t.equal(response.statusCode, 200)
+    t.notMatch(response.headers, maybeExpected)
+    t.has(response.headers, expected)
+  }
 
-  response = await fastify.inject({
+  const response = await fastify.inject({
     method: 'GET',
     path: '/frameguard'
   })
 
+  t.equal(response.statusCode, 200)
   t.has(response.headers, maybeExpected)
   t.has(response.headers, expected)
 })
 
-test('It should throw an error when route specific helmet options are of an invalid type', (t) => {
+test('It should throw an error when route specific helmet options are of an invalid type', async (t) => {
   t.plan(2)
 
   const fastify = Fastify()
@@ -252,13 +255,75 @@ test('It should throw an error when route specific helmet options are of an inva
     return { message: 'ok' }
   })
 
-  fastify.inject({
-    method: 'GET',
-    path: '/'
-  }).catch((err) => {
-    if (err) {
-      t.ok(err)
-      t.equal(err.message, 'Unknown value for route helmet configuration')
-    }
+  try {
+    await fastify.ready()
+  } catch (error) {
+    t.ok(error)
+    t.equal(error.message, 'Unknown value for route helmet configuration')
+  }
+})
+
+test('It should forward `helmet` reply decorator and route specific errors to `fastify-helmet`', async (t) => {
+  t.plan(6)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/helmet-reply-decorator-error', async (request, reply) => {
+    await reply.helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'", () => 'bad;value']
+        }
+      }
+    })
+
+    return { message: 'ok' }
   })
+
+  fastify.get('/helmet-route-configuration-error', {
+    helmet: {
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'", () => 'bad;value']
+        }
+      }
+    }
+  }, async (request, reply) => {
+    return { message: 'ok' }
+  })
+
+  const notExpected = {
+    'x-dns-prefetch-control': 'off',
+    'x-frame-options': 'SAMEORIGIN',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  {
+    const response = await fastify.inject({
+      method: 'GET',
+      path: '/helmet-reply-decorator-error'
+    })
+
+    t.equal(response.statusCode, 500)
+    t.equal(
+      JSON.parse(response.payload).message,
+      'Content-Security-Policy received an invalid directive value for "default-src"'
+    )
+    t.notMatch(response.headers, notExpected)
+  }
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/helmet-route-configuration-error'
+  })
+
+  t.equal(response.statusCode, 500)
+  t.equal(
+    JSON.parse(response.payload).message,
+    'Content-Security-Policy received an invalid directive value for "default-src"'
+  )
+  t.notMatch(response.headers, notExpected)
 })
