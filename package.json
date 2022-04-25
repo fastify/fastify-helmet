@@ -40,7 +40,7 @@
     "fastify": "^3.25.3",
     "pre-commit": "^1.2.2",
     "snazzy": "^9.0.0",
-    "standard": "^16.0.4",
+    "standard": "^17.0.0",
     "tap": "^16.0.0",
     "tsd": "^0.20.0",
     "typescript": "^4.5.4"
