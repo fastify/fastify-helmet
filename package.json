@@ -1,6 +1,6 @@
 {
-  "name": "fastify-helmet",
-  "version": "7.0.1",
+  "name": "@fastify/helmet",
+  "version": "8.0.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "types": "index.d.ts",
@@ -51,5 +51,8 @@
   },
   "tsd": {
     "directory": "test/types"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
