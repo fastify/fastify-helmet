@@ -1,7 +1,7 @@
-# fastify-helmet
+# @fastify/helmet
 
 ![CI](https://github.com/fastify/fastify-helmet/workflows/CI/badge.svg)
-[![NPM version](https://img.shields.io/npm/v/fastify-helmet)](https://www.npmjs.com/package/fastify-helmet)
+[![NPM version](https://img.shields.io/npm/v/@fastify/helmet)](https://www.npmjs.com/package/@fastify/helmet)
 [![Known Vulnerabilities](https://snyk.io/test/github/fastify/fastify-helmet/badge.svg)](https://snyk.io/test/github/fastify/fastify-helmet)
 [![Coverage Status](https://coveralls.io/repos/github/fastify/fastify-helmet/badge.svg?branch=master)](https://coveralls.io/github/fastify/fastify-helmet?branch=master)
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) 
@@ -11,7 +11,7 @@ Important security headers for Fastify. It is a tiny wrapper around
 
 ## Install
 ```
-npm i fastify-helmet
+npm i @fastify/helmet
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ Simply require this plugin, and the basic security headers will be set.
 
 ```js
 const fastify = require('fastify')()
-const helmet = require('fastify-helmet')
+const helmet = require('@fastify/helmet')
 
 fastify.register(
   helmet,
@@ -35,18 +35,18 @@ fastify.listen(3000, err => {
 
 ## How it works
 
-`fastify-helmet` is a tiny wrapper around helmet that adds an `'onRequest'` hook
+`@fastify/helmet` is a tiny wrapper around helmet that adds an `'onRequest'` hook
 and a `reply.helmet` decorator.
 
 It accepts the same options as helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/docs/).
 
 ### Apply Helmet to all your application routes
 
-By passing `{ global: true }` into the options, `fastify-helmet` allows you to register Helmet for all your application
+By passing `{ global: true }` into the options, `@fastify/helmet` allows you to register Helmet for all your application
 routes by default. If you want a more granular control on how to apply Helmet to your application you can choose to
 disable it on a global scope by passing `{ global: false }` to the options. By default, this option is set to `true`.
 
-#### Example - enable `fastify-helmet` globally
+#### Example - enable `@fastify/helmet` globally
 
 ```js
 fastify.register(helmet)
@@ -54,7 +54,7 @@ fastify.register(helmet)
 fastify.register(helmet, { global: true })
 ```
 
-#### Example - disable `fastify-helmet` globally
+#### Example - disable `@fastify/helmet` globally
 
 ```js
 // register the package with the `{ global: false }` option
@@ -103,7 +103,7 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
 
 ### `helmet` route option
 
-`fastify-helmet` allows you to enable, disable, and customize helmet for each one of your application hooks by using the 
+`@fastify/helmet` allows you to enable, disable, and customize helmet for each one of your application hooks by using the 
 `helmet` shorthand route option when you register your application routes.
 
 If you want to disable helmet for a specific endpoint you must pass `{ helmet: false }` to your route options.
@@ -111,7 +111,7 @@ If you want to disable helmet for a specific endpoint you must pass `{ helmet: f
 If you want to enable or customize helmet for a specific endpoint you must pass a helmet configuration object to your
 route options. E.g.: `{ helmet: { frameguard: false } }`.
 
-#### Example - `fastify-helmet` configuration using the `helmet` shorthand route option
+#### Example - `@fastify/helmet` configuration using the `helmet` shorthand route option
 
 ```js
 // register the package with the `{ global: true }` option
@@ -163,7 +163,7 @@ fastify.get('/route-with-custom-helmet-configuration', {
 
 ### Content-Security-Policy Nonce
 
-`fastify-helmet` provide a simple way for `csp nonces generation`. You can enable this behavior by passing
+`@fastify/helmet` provide a simple way for `csp nonces generation`. You can enable this behavior by passing
 `{ enableCSPNonces: true }` into the options. Then, you can retrieve the `nonces` through `reply.cspNonce`.
 
 > Note: This feature is implemented inside this module. It is not a valid option or supported by helmet.
