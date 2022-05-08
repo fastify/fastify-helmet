@@ -134,7 +134,7 @@ function done (error) {
 }
 
 module.exports = fp(helmetPlugin, {
-  fastify: '3.x',
+  fastify: '4.x',
   name: 'fastify-helmet'
 })
 

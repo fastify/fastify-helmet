@@ -249,14 +249,12 @@ test('It should throw an error when route specific helmet options are of an inva
   t.plan(2)
 
   const fastify = Fastify()
-  fastify.register(helmet)
-
-  fastify.get('/', { helmet: 'invalid_options' }, (request, reply) => {
-    return { message: 'ok' }
-  })
+  await fastify.register(helmet)
 
   try {
-    await fastify.ready()
+    fastify.get('/', { helmet: 'invalid_options' }, (request, reply) => {
+      return { message: 'ok' }
+    })
   } catch (error) {
     t.ok(error)
     t.equal(error.message, 'Unknown value for route helmet configuration')
