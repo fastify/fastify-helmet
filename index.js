@@ -135,7 +135,7 @@ function done (error) {
 
 module.exports = fp(helmetPlugin, {
   fastify: '4.x',
-  name: 'fastify-helmet'
+  name: '@fastify/helmet'
 })
 
 module.exports.contentSecurityPolicy = helmet.contentSecurityPolicy
