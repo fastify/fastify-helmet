@@ -158,6 +158,33 @@ test('It should be able to access default CSP directives through plugin export',
   t.has(response.headers, expected)
 })
 
+test('It should not set default directives when useDefaults is set to `false`', async (t) => {
+  t.plan(1)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        defaultSrc: ['\'self\'']
+      }
+    }
+  })
+
+  fastify.get('/', (request, reply) => {
+    reply.send({ hello: 'world' })
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  const expected = { 'content-security-policy': 'default-src \'self\'' }
+
+  t.has(response.headers, expected)
+})
+
 test('It should auto generate nonce per request', async (t) => {
   t.plan(7)
 
@@ -215,6 +242,37 @@ test('It should allow merging options for enableCSPNonces', async (t) => {
   })
 })
 
+test('It should not set default directives when using enableCSPNonces and useDefaults is set to `false`', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    enableCSPNonces: true,
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        defaultSrc: ['\'self\''],
+        scriptSrc: ['\'self\''],
+        styleSrc: ['\'self\'']
+      }
+    }
+  })
+
+  fastify.get('/', (request, reply) => {
+    t.ok(reply.cspNonce)
+    reply.send(reply.cspNonce)
+  })
+
+  const response = await fastify.inject({ method: 'GET', path: '/' })
+  const cspCache = response.json()
+
+  t.ok(cspCache.script)
+  t.ok(cspCache.style)
+  t.has(response.headers, {
+    'content-security-policy': `default-src 'self';script-src 'self' 'nonce-${cspCache.script}';style-src 'self' 'nonce-${cspCache.style}'`
+  })
+})
+
 test('It should not stack nonce array in csp header', async (t) => {
   t.plan(8)
 
@@ -262,7 +320,6 @@ test('It should access the correct options property', async (t) => {
     enableCSPNonces: true,
     contentSecurityPolicy: {
       directives: {
-        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
         'style-src': ["'self'", "'unsafe-inline'"]
       }
@@ -280,7 +337,7 @@ test('It should access the correct options property', async (t) => {
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.has(response.headers, {
-    'content-security-policy': `default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';script-src-attr 'none';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';upgrade-insecure-requests`
+    'content-security-policy': `script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 })
 
