@@ -233,8 +233,8 @@ fastify.get('/', function(request, reply) {
 
 ### Disable Default `helmet` Directives
 
-By default, `helmet` will set [a default set of CSP directives](https://github.com/helmetjs/helmet/tree/main/middlewares/content-security-policy#content-security-policy-middleware) on the response.
-This behavior can be disabled by setting `useDefaults: false` on the `contentSecurityPolicy` configuration.
+By default, `helmet` will add [a default set of CSP directives](https://github.com/helmetjs/helmet/tree/main/middlewares/content-security-policy#content-security-policy-middleware) to the response.
+This behavior can be disabled by setting `useDefaults: false` in the `contentSecurityPolicy` configuration.
 
 ```js
 fastify.register(
