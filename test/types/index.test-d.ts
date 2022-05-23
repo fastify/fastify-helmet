@@ -37,7 +37,8 @@ appFour.register(fastifyHelmet, {
     directives: {
       'directive-1': ['foo', 'bar']
     },
-    reportOnly: true
+    reportOnly: true,
+    useDefaults: false
   },
   dnsPrefetchControl: {
     allow: true

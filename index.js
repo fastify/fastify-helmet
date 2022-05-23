@@ -102,6 +102,9 @@ async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
     const cspReportOnly = configuration.contentSecurityPolicy
       ? configuration.contentSecurityPolicy.reportOnly
       : undefined
+    const cspUseDefaults = configuration.contentSecurityPolicy
+      ? configuration.contentSecurityPolicy.useDefaults
+      : undefined
 
     // We get the csp nonce from the reply
     const { script: scriptCSPNonce, style: styleCSPNonce } = reply.cspNonce
@@ -119,7 +122,7 @@ async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
     directives[styleKey] = Array.isArray(directives[styleKey]) ? [...directives[styleKey]] : []
     directives[styleKey].push(`'nonce-${styleCSPNonce}'`)
 
-    const contentSecurityPolicy = { directives, reportOnly: cspReportOnly }
+    const contentSecurityPolicy = { directives, reportOnly: cspReportOnly, useDefaults: cspUseDefaults }
     const mergedHelmetConfiguration = Object.assign(Object.create(null), configuration, { contentSecurityPolicy })
 
     helmet(mergedHelmetConfiguration)(request.raw, reply.raw, done)

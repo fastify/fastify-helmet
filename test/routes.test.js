@@ -85,7 +85,6 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
     enableCSPNonces: false,
     contentSecurityPolicy: {
       directives: {
-        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
         'style-src': ["'self'", "'unsafe-inline'"]
       }
@@ -107,7 +106,7 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
   t.ok(cspCache.script)
   t.ok(cspCache.style)
   t.has(response.headers, {
-    'content-security-policy': `default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';script-src-attr 'none';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';upgrade-insecure-requests`
+    'content-security-policy': `script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';default-src 'self';base-uri 'self';block-all-mixed-content;font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
   })
 })
 
@@ -191,6 +190,42 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
   t.not(cspCache, newCsp)
   t.ok(cspCache.script)
   t.ok(cspCache.style)
+})
+
+test('It should not set default directives when route useDefaults is set to `false`', async (t) => {
+  t.plan(1)
+
+  const fastify = Fastify()
+
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: false,
+    contentSecurityPolicy: {
+      directives: {
+      }
+    }
+  })
+
+  fastify.get('/', {
+    helmet: {
+      contentSecurityPolicy: {
+        useDefaults: false,
+        directives: {
+          'default-src': ["'self'"],
+          'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
+          'style-src': ["'self'", "'unsafe-inline'"]
+        }
+      }
+    }
+  }, (request, reply) => {
+    reply.send({ hello: 'world' })
+  })
+
+  const response = await fastify.inject({ method: 'GET', path: '/' })
+
+  t.has(response.headers, {
+    'content-security-policy': "default-src 'self';script-src 'self' 'unsafe-eval' 'unsafe-inline';style-src 'self' 'unsafe-inline'"
+  })
 })
 
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
