@@ -28,6 +28,6 @@ app.get('/', opts, function (request, reply) {
   reply.send({ hello: 'world' })
 })
 
-app.listen(3000, err => {
+app.listen({ port: 3000 }, err => {
   if (err) throw err
 })
