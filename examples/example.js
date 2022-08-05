@@ -40,7 +40,7 @@ fastify.get('/route-with-disabled-helmet', { ...opts, helmet: false }, function 
     .send({ hello: 'world' })
 })
 
-fastify.listen(3000, err => {
+fastify.listen({ port: 3000 }, err => {
   if (err) throw err
   fastify.log.info(`Server listening on ${fastify.server.address().address}:${fastify.server.address().port}`)
 })
