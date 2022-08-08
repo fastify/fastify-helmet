@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, RawServerBase, RawServerDefault } from 'fastify';
+import { FastifyPluginAsync, RawServerBase, RawServerDefault } from 'fastify';
 import helmet, { contentSecurityPolicy, HelmetOptions } from 'helmet';
 
 declare module 'fastify' {
@@ -26,7 +26,7 @@ export interface FastifyHelmetOptions extends NonNullable<HelmetOptions> {
   global?: boolean;
 }
 
-export const fastifyHelmet: FastifyPluginCallback<FastifyHelmetOptions> & {
+export const fastifyHelmet: FastifyPluginAsync<FastifyHelmetOptions> & {
   contentSecurityPolicy: typeof contentSecurityPolicy;
 };
 
