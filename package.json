@@ -3,7 +3,7 @@
   "version": "9.1.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "scripts": {
     "coverage": "npm run unit -- --coverage-report=lcovonly",
     "lint": "standard | snazzy",

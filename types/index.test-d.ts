@@ -1,7 +1,7 @@
-import fastify, { FastifyPluginCallback } from 'fastify';
+import fastify, { FastifyPluginAsync } from 'fastify';
 import helmet from 'helmet';
 import { expectAssignable, expectError, expectType } from 'tsd';
-import fastifyHelmet, { FastifyHelmetOptions, FastifyHelmetRouteOptions } from '../..';
+import fastifyHelmet, { FastifyHelmetOptions, FastifyHelmetRouteOptions } from '..';
 
 // Plugin registered with no options
 const appOne = fastify();
@@ -189,7 +189,7 @@ expectError(
 
 // fastify-helmet instance is using the FastifyHelmetOptions options
 expectType<
-  FastifyPluginCallback<FastifyHelmetOptions> & {
+  FastifyPluginAsync<FastifyHelmetOptions> & {
     contentSecurityPolicy: typeof helmet.contentSecurityPolicy;
   }
 >(fastifyHelmet);
