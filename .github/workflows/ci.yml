@@ -2,6 +2,10 @@ name: CI
 
 on:
   push:
+    branches:
+     - main
+     - master
+     - next
     paths-ignore:
       - 'docs/**'
       - '*.md'
