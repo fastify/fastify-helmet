@@ -6,6 +6,7 @@ const helmet = require('helmet')
 
 // this is a PR #196 test
 // new line test
+// new line
 
 async function helmetPlugin (fastify, options) {
   // helmet will throw when any option is explicitly set to "true"
