@@ -4,6 +4,8 @@ const { randomBytes } = require('crypto')
 const fp = require('fastify-plugin')
 const helmet = require('helmet')
 
+// this is a PR #196 test
+
 async function helmetPlugin (fastify, options) {
   // helmet will throw when any option is explicitly set to "true"
   // using ECMAScript destructuring is a clean workaround as we do not need to alter options
