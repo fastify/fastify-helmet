@@ -159,7 +159,7 @@ const routeHelmetOptions = {
     }
   }
 };
-expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions)
+expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions);
 
 appEight.get('/enabled-helmet', routeHelmetOptions, function (request, reply) {
   expectType<typeof helmet>(reply.helmet());
@@ -167,7 +167,7 @@ appEight.get('/enabled-helmet', routeHelmetOptions, function (request, reply) {
     script: string;
     style: string;
   }>(reply.cspNonce);
-})
+});
 
 appEight.get('/enable-framegard', {
   helmet: { frameguard: true }
@@ -177,7 +177,7 @@ appEight.get('/enable-framegard', {
     script: string;
     style: string;
   }>(reply.cspNonce);
-})
+});
 
 // Plugin registered with an invalid helmet option
 const appThatTriggerAnError = fastify();
