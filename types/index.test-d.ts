@@ -49,7 +49,7 @@ appFour.register(fastifyHelmet, {
     reportUri: 'foo'
   },
   frameguard: {
-    action: 'foo'
+    action: 'deny'
   },
   hsts: {
     maxAge: 1,
@@ -57,10 +57,10 @@ appFour.register(fastifyHelmet, {
     preload: true
   },
   permittedCrossDomainPolicies: {
-    permittedPolicies: 'foo'
+    permittedPolicies: 'master-only'
   },
   referrerPolicy: {
-    policy: 'foo'
+    policy: 'no-referrer'
   }
   // these options are false or never
   // hidePoweredBy: false
@@ -144,7 +144,7 @@ const routeHelmetOptions = {
       reportUri: 'foo'
     },
     frameguard: {
-      action: 'foo'
+      action: 'deny' as const
     },
     hsts: {
       maxAge: 1,
@@ -152,10 +152,10 @@ const routeHelmetOptions = {
       preload: true
     },
     permittedCrossDomainPolicies: {
-      permittedPolicies: 'foo'
+      permittedPolicies: 'all'  as const
     },
     referrerPolicy: {
-      policy: 'foo'
+      policy: 'no-referrer' as const
     }
   }
 };
