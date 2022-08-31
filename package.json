@@ -38,14 +38,14 @@
   "devDependencies": {
     "@fastify/pre-commit": "^2.0.2",
     "@types/node": "^18.0.0",
-    "fastify": "^4.0.0-rc.2",
+    "fastify": "^4.5.3",
     "snazzy": "^9.0.0",
     "standard": "^17.0.0",
     "tap": "^16.0.0",
     "tsd": "^0.22.0"
   },
   "dependencies": {
-    "fastify-plugin": "^4.0.0",
+    "fastify-plugin": "^4.2.1",
     "helmet": "^6.0.0"
   },
   "tsd": {
