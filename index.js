@@ -34,7 +34,8 @@ async function helmetPlugin (fastify, options) {
   })
 
   fastify.addHook('onRequest', async (request, reply) => {
-    const { helmet: routeOptions } = request.routeConfig
+    /* istanbul ignore next */
+    const { helmet: routeOptions } = request.routeConfig || request.context.config
 
     if (typeof routeOptions !== 'undefined') {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
