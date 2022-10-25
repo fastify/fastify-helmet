@@ -394,7 +394,7 @@ test('It should add hooks correctly', async (t) => {
     return { message: 'two' }
   })
 
-  fastify.get('/three', { onRequest: null }, (request, reply) => {
+  fastify.get('/three', { onRequest: async () => {} }, (request, reply) => {
     return { message: 'three' }
   })
 
