@@ -138,9 +138,17 @@ function done (error) {
   if (error) throw error
 }
 
-module.exports = fp(helmetPlugin, {
+const _helmetPlugin = fp(helmetPlugin, {
   fastify: '4.x',
   name: '@fastify/helmet'
 })
+
+/**
+ * These export configurations enable JS and TS developers
+ * to consumer fastify in whatever way best suits their needs.
+ */
+module.exports = _helmetPlugin
+module.exports.helmetPlugin = _helmetPlugin
+module.exports.default = _helmetPlugin
 
 module.exports.contentSecurityPolicy = helmet.contentSecurityPolicy

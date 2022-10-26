@@ -1,10 +1,10 @@
-import { FastifyPluginAsync, RawServerBase, RawServerDefault } from 'fastify';
-import helmet, { contentSecurityPolicy, HelmetOptions } from 'helmet';
+import { FastifyPluginAsync, FastifyPluginCallback, RawServerBase, RawServerDefault } from 'fastify';
+import helmet, { contentSecurityPolicy as HelmetContentSecurityPolicy, HelmetOptions } from 'helmet';
 
 declare module 'fastify' {
   export interface RouteShorthandOptions<
     RawServer extends RawServerBase = RawServerDefault
-  > extends FastifyHelmetRouteOptions {}
+  > extends fastifyHelmet.FastifyHelmetRouteOptions {}
 
   interface FastifyReply {
     cspNonce: {
@@ -14,20 +14,27 @@ declare module 'fastify' {
     helmet: (opts?: HelmetOptions) => typeof helmet
   }
 
-  export interface RouteOptions extends FastifyHelmetRouteOptions {}
+  export interface RouteOptions extends fastifyHelmet.FastifyHelmetRouteOptions {}
 }
 
-export interface FastifyHelmetRouteOptions {
-  helmet?: Omit<FastifyHelmetOptions, 'global'> | false;
+type FastifyHelmetPlugin = FastifyPluginCallback<fastifyHelmet.FastifyHelmetOptions>;
+
+declare namespace fastifyHelmet {
+  export interface FastifyHelmetOptions extends NonNullable<HelmetOptions> {
+    enableCSPNonces?: boolean,
+    global?: boolean;
+  }
+
+  export interface FastifyHelmetRouteOptions {
+    helmet?: Omit<FastifyHelmetOptions, 'global'> | false;
+  }
+  
+  export const contentSecurityPolicy: FastifyPluginAsync<FastifyHelmetOptions> & typeof HelmetContentSecurityPolicy;
+  
 }
 
-export interface FastifyHelmetOptions extends NonNullable<HelmetOptions> {
-  enableCSPNonces?: boolean,
-  global?: boolean;
-}
+declare function fastifyHelmet(
+  ...params: Parameters<FastifyHelmetPlugin>
+): ReturnType<FastifyHelmetPlugin>;
 
-export const fastifyHelmet: FastifyPluginAsync<FastifyHelmetOptions> & {
-  contentSecurityPolicy: typeof contentSecurityPolicy;
-};
-
-export default fastifyHelmet;
+export = fastifyHelmet;
