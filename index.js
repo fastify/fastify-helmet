@@ -4,7 +4,7 @@ const { randomBytes } = require('crypto')
 const fp = require('fastify-plugin')
 const helmet = require('helmet')
 
-async function helmetPlugin (fastify, options) {
+async function fastifyHelmet (fastify, options) {
   // helmet will throw when any option is explicitly set to "true"
   // using ECMAScript destructuring is a clean workaround as we do not need to alter options
   const { enableCSPNonces, global, ...globalConfiguration } = options
@@ -138,9 +138,11 @@ function done (error) {
   if (error) throw error
 }
 
-module.exports = fp(helmetPlugin, {
+module.exports = fp(fastifyHelmet, {
   fastify: '4.x',
   name: '@fastify/helmet'
 })
+module.exports.default = fastifyHelmet
+module.exports.fastifyHelmet = fastifyHelmet
 
 module.exports.contentSecurityPolicy = helmet.contentSecurityPolicy
