@@ -27,10 +27,10 @@ declare namespace fastifyHelmet {
     helmet?: Omit<FastifyHelmetOptions, 'global'> | false;
   }
 
-  export interface FastifyHelmetOptions extends NonNullable<HelmetOptions> {
+  export type FastifyHelmetOptions = {
     enableCSPNonces?: boolean,
     global?: boolean;
-  }
+  } & NonNullable<HelmetOptions>;
 
   export const fastifyHelmet: FastifyHelmet
   export { fastifyHelmet as default }
