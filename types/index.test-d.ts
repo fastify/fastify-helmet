@@ -43,11 +43,6 @@ appFour.register(fastifyHelmet, {
   dnsPrefetchControl: {
     allow: true
   },
-  expectCt: {
-    maxAge: 1,
-    enforce: true,
-    reportUri: 'foo'
-  },
   frameguard: {
     action: 'deny'
   },
