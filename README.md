@@ -68,11 +68,6 @@ fastify.get('/route-with-enabled-helmet', {
     dnsPrefetchControl: {
       allow: true
     },
-    expectCt: {
-      maxAge: 1,
-      enforce: true,
-      reportUri: 'foo'
-    },
     frameguard: {
       action: 'foo'
     },
@@ -135,11 +130,6 @@ fastify.get('/route-with-custom-helmet-configuration', {
     },
     dnsPrefetchControl: {
       allow: true
-    },
-    expectCt: {
-      maxAge: 1,
-      enforce: true,
-      reportUri: 'foo'
     },
     frameguard: {
       action: 'foo'
