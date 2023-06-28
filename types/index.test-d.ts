@@ -17,7 +17,6 @@ const appThree = fastify();
 const helmetOptions = {
   contentSecurityPolicy: false,
   dnsPrefetchControl: false,
-  expectCt: false,
   frameguard: false,
   hidePoweredBy: false,
   hsts: false,
@@ -42,11 +41,6 @@ appFour.register(fastifyHelmet, {
   },
   dnsPrefetchControl: {
     allow: true
-  },
-  expectCt: {
-    maxAge: 1,
-    enforce: true,
-    reportUri: 'foo'
   },
   frameguard: {
     action: 'deny'
@@ -137,11 +131,6 @@ const routeHelmetOptions = {
     },
     dnsPrefetchControl: {
       allow: true
-    },
-    expectCt: {
-      maxAge: 1,
-      enforce: true,
-      reportUri: 'foo'
     },
     frameguard: {
       action: 'deny' as const
