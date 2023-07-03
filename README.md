@@ -36,7 +36,7 @@ fastify.listen({ port: 3000 }, err => {
 `@fastify/helmet` is a tiny wrapper around helmet that adds an `'onRequest'` hook
 and a `reply.helmet` decorator.
 
-It accepts the same options as helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/docs/).
+It accepts the same options as helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/).
 
 ### Apply Helmet to all your application routes
 
