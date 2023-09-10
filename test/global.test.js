@@ -1,6 +1,6 @@
 'use strict'
 
-const stream = require('stream')
+const stream = require('node:stream')
 const { test } = require('tap')
 const fp = require('fastify-plugin')
 const Fastify = require('fastify')
