@@ -1,6 +1,6 @@
 'use strict'
 
-const { randomBytes } = require('crypto')
+const { randomBytes } = require('node:crypto')
 const fp = require('fastify-plugin')
 const helmet = require('helmet')
 
