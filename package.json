@@ -1,6 +1,6 @@
 {
   "name": "@fastify/helmet",
-  "version": "11.0.0",
+  "version": "11.1.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "types": "types/index.d.ts",
