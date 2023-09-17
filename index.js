@@ -35,7 +35,9 @@ async function fastifyHelmet (fastify, options) {
 
   fastify.addHook('onRequest', async (request, reply) => {
     /* istanbul ignore next */
-    const { helmet: routeOptions } = request.routeOptions.config || request.context.config
+    const { helmet: routeOptions } = request.routeOptions.config ||
+    request.routeConfig ||
+    request.context.config
 
     if (typeof routeOptions !== 'undefined') {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
@@ -52,7 +54,9 @@ async function fastifyHelmet (fastify, options) {
 
   fastify.addHook('onRequest', (request, reply, next) => {
     /* istanbul ignore next */
-    const { helmet: routeOptions } = request.routeOptions.config || request.context.config
+    const { helmet: routeOptions } = request.routeOptions.config ||
+    request.routeConfig ||
+    request.context.config
 
     if (typeof routeOptions !== 'undefined') {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
