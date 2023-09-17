@@ -685,7 +685,7 @@ test('It should not return a fastify `FST_ERR_REP_ALREADY_SENT - Reply already s
       }
 
       // We want to crash in the scope of this test
-      const crash = request.routeOptions.config.fail
+      const crash = request.routeOptions?.config?.fail || request.routeConfig.fail
 
       Promise.resolve(crash).then((fail) => {
         if (fail === true) {
