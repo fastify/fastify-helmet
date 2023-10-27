@@ -3,6 +3,7 @@
   "version": "11.1.1",
   "description": "Important security headers for Fastify",
   "main": "index.js",
+  "type": "commonjs",
   "types": "types/index.d.ts",
   "scripts": {
     "coverage": "npm run unit -- --coverage-report=lcovonly",
