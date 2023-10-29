@@ -22,7 +22,7 @@ async function fastifyHelmet (fastify, options) {
   }
 
   fastify.addHook('onRoute', (routeOptions) => {
-    if (typeof routeOptions.helmet !== 'undefined') {
+    if (routeOptions.helmet !== undefined) {
       if (typeof routeOptions.helmet === 'object') {
         routeOptions.config = Object.assign(routeOptions.config || Object.create(null), { helmet: routeOptions.helmet })
       } else if (routeOptions.helmet === false) {
@@ -38,7 +38,7 @@ async function fastifyHelmet (fastify, options) {
     const { helmet: routeOptions } = request.routeOptions?.config ||
     request.routeConfig
 
-    if (typeof routeOptions !== 'undefined') {
+    if (routeOptions !== undefined) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
       // If route helmet options are set they overwrite the global helmet configuration
       const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
@@ -56,7 +56,7 @@ async function fastifyHelmet (fastify, options) {
     const { helmet: routeOptions } = request.routeOptions?.config ||
     request.routeConfig
 
-    if (typeof routeOptions !== 'undefined') {
+    if (routeOptions !== undefined) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
 
       if (skipRoute === true) {
