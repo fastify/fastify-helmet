@@ -200,12 +200,16 @@ fastify.register(
           function (req, res) {
             // "res" here is actually "reply.raw" in fastify
             res.scriptNonce = crypto.randomBytes(16).toString('hex')
+            // make sure to return nonce-... directive to helmet, so it can be sent in the headers
+            return `'nonce-${res.scriptNonce}'`
           }
         ],
         styleSrc: [
           function (req, res) {
             // "res" here is actually "reply.raw" in fastify
             res.styleNonce = crypto.randomBytes(16).toString('hex')
+            // make sure to return nonce-... directive to helmet, so it can be sent in the headers
+            return `'nonce-${res.styleNonce}'`
           }
         ]
       }
