@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/fastify/fastify-helmet/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/@fastify/helmet)](https://www.npmjs.com/package/@fastify/helmet)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) 
+[![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
 Important security headers for Fastify. It is a tiny wrapper around
 [helmet](https://npm.im/helmet).
