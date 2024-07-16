@@ -4,4 +4,3 @@ node-arg:
 
 include:
   - 'test/*.test.js'
-  - 'test/*.test.ts'
