@@ -45,10 +45,10 @@ async function fastifyHelmet (fastify, options) {
 
       // We decorate the reply with a fallback to the route scoped helmet options
       return replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
-    } else {
-      // We decorate the reply with a fallback to the global helmet options
-      return replyDecorators(request, reply, globalConfiguration, enableCSPNonces)
     }
+
+    // We decorate the reply with a fallback to the global helmet options
+    return replyDecorators(request, reply, globalConfiguration, enableCSPNonces)
   })
 
   fastify.addHook('onRequest', (request, reply, next) => {
@@ -69,14 +69,14 @@ async function fastifyHelmet (fastify, options) {
       }
 
       return next()
-    } else if (isGlobal) {
+    }
+    if (isGlobal) {
       // if the plugin is set globally (meaning that all the routes will be decorated)
       // As the endpoint, does not have a custom helmet configuration, use the global one.
       return buildHelmetOnRoutes(request, reply, globalConfiguration, enableCSPNonces)
-    } else {
-      // if the plugin is not global we can skip the route
     }
 
+    // if the plugin is not global we can skip the route
     return next()
   })
 }
