@@ -141,7 +141,7 @@ function done (error) {
 }
 
 module.exports = fp(fastifyHelmet, {
-  fastify: '4.x',
+  fastify: '5.x',
   name: '@fastify/helmet'
 })
 module.exports.default = fastifyHelmet
