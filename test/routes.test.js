@@ -1,6 +1,6 @@
 'use strict'
 
-const { test } = require('tap')
+const { test } = require('node:test')
 const Fastify = require('fastify')
 const helmet = require('..')
 
@@ -30,8 +30,18 @@ test('It should apply route specific helmet options over the global options', as
     'x-xss-protection': '0'
   }
 
-  t.notMatch(response.headers, notExpected)
-  t.has(response.headers, expected)
+  const actualResponseHeaders = {
+    'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+    'x-download-options': response.headers['x-download-options'],
+    'x-content-type-options': response.headers['x-content-type-options'],
+    'x-xss-protection': response.headers['x-xss-protection']
+  }
+
+  t.assert.notDeepStrictEqual(
+    response.headers['x-frame-options'],
+    notExpected['x-frame-options']
+  )
+  t.assert.deepStrictEqual(actualResponseHeaders, expected)
 })
 
 test('It should disable helmet on specific route when route `helmet` option is set to `false`', async (t) => {
@@ -56,23 +66,44 @@ test('It should disable helmet on specific route when route `helmet` option is s
     'x-xss-protection': '0'
   }
 
-  await fastify.inject({
-    method: 'GET',
-    path: '/disabled'
-  }).then((response) => {
-    t.notMatch(response.headers, helmetHeaders)
-  }).catch((err) => {
-    t.error(err)
-  })
+  await fastify
+    .inject({
+      method: 'GET',
+      path: '/disabled'
+    })
+    .then((response) => {
+      const actualResponseHeaders = {
+        'x-frame-options': response.headers['x-frame-options'],
+        'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+        'x-download-options': response.headers['x-download-options'],
+        'x-content-type-options': response.headers['x-content-type-options'],
+        'x-xss-protection': response.headers['x-xss-protection']
+      }
 
-  await fastify.inject({
-    method: 'GET',
-    path: '/enabled'
-  }).then((response) => {
-    t.has(response.headers, helmetHeaders)
-  }).catch((err) => {
-    t.error(err)
-  })
+      t.assert.notDeepStrictEqual(actualResponseHeaders, helmetHeaders)
+    })
+    .catch((err) => {
+      t.assert.fail(err)
+    })
+
+  await fastify
+    .inject({
+      method: 'GET',
+      path: '/enabled'
+    })
+    .then((response) => {
+      const actualResponseHeaders = {
+        'x-frame-options': response.headers['x-frame-options'],
+        'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+        'x-download-options': response.headers['x-download-options'],
+        'x-content-type-options': response.headers['x-content-type-options'],
+        'x-xss-protection': response.headers['x-xss-protection']
+      }
+      t.assert.deepStrictEqual(actualResponseHeaders, helmetHeaders)
+    })
+    .catch((err) => {
+      t.assert.fail(err)
+    })
 })
 
 test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` option is set to `true`', async (t) => {
@@ -91,23 +122,32 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
     }
   })
 
-  fastify.get('/', {
-    helmet: {
-      enableCSPNonces: true
+  fastify.get(
+    '/',
+    {
+      helmet: {
+        enableCSPNonces: true
+      }
+    },
+    (request, reply) => {
+      t.assert.ok(reply.cspNonce)
+      reply.send(reply.cspNonce)
     }
-  }, (request, reply) => {
-    t.ok(reply.cspNonce)
-    reply.send(reply.cspNonce)
-  })
+  )
 
   const response = await fastify.inject({ method: 'GET', path: '/' })
   const cspCache = response.json()
 
-  t.ok(cspCache.script)
-  t.ok(cspCache.style)
-  t.has(response.headers, {
+  const expected = {
     'content-security-policy': `script-src 'self' 'unsafe-eval' 'unsafe-inline' 'nonce-${cspCache.script}';style-src 'self' 'unsafe-inline' 'nonce-${cspCache.style}';default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src-attr 'none';upgrade-insecure-requests`
-  })
+  }
+
+  const actualResponseHeaders = {
+    'content-security-policy': response.headers['content-security-policy']
+  }
+  t.assert.ok(cspCache.script)
+  t.assert.ok(cspCache.style)
+  t.assert.deepStrictEqual(actualResponseHeaders, expected)
 })
 
 test('It should add CSPNonce decorator and hooks with default options when route `enableCSPNonces` option is set to `true`', async (t) => {
@@ -121,18 +161,22 @@ test('It should add CSPNonce decorator and hooks with default options when route
   })
 
   fastify.get('/no-csp', (request, reply) => {
-    t.equal(reply.cspNonce, null)
+    t.assert.equal(reply.cspNonce, null)
     reply.send({ message: 'no csp' })
   })
 
-  fastify.get('/with-csp', {
-    helmet: {
-      enableCSPNonces: true
+  fastify.get(
+    '/with-csp',
+    {
+      helmet: {
+        enableCSPNonces: true
+      }
+    },
+    (request, reply) => {
+      t.assert.ok(reply.cspNonce)
+      reply.send(reply.cspNonce)
     }
-  }, (request, reply) => {
-    t.ok(reply.cspNonce)
-    reply.send(reply.cspNonce)
-  })
+  )
 
   fastify.inject({
     method: 'GET',
@@ -143,14 +187,14 @@ test('It should add CSPNonce decorator and hooks with default options when route
 
   response = await fastify.inject({ method: 'GET', path: '/with-csp' })
   const cspCache = response.json()
-  t.ok(cspCache.script)
-  t.ok(cspCache.style)
+  t.assert.ok(cspCache.script)
+  t.assert.ok(cspCache.style)
 
   response = await fastify.inject({ method: 'GET', path: '/with-csp' })
   const newCsp = response.json()
-  t.not(cspCache, newCsp)
-  t.ok(cspCache.script)
-  t.ok(cspCache.style)
+  t.assert.notEqual(cspCache, newCsp)
+  t.assert.ok(cspCache.script)
+  t.assert.ok(cspCache.style)
 })
 
 test('It should not add CSPNonce decorator when route `enableCSPNonces` option is set to `false`', async (t) => {
@@ -164,14 +208,18 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
   })
 
   fastify.get('/with-csp', (request, reply) => {
-    t.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
 
-  fastify.get('/no-csp', { helmet: { enableCSPNonces: false } }, (request, reply) => {
-    t.equal(reply.cspNonce, null)
-    reply.send({ message: 'no csp' })
-  })
+  fastify.get(
+    '/no-csp',
+    { helmet: { enableCSPNonces: false } },
+    (request, reply) => {
+      t.assert.equal(reply.cspNonce, null)
+      reply.send({ message: 'no csp' })
+    }
+  )
 
   fastify.inject({
     method: 'GET',
@@ -182,14 +230,14 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
 
   response = await fastify.inject({ method: 'GET', path: '/with-csp' })
   const cspCache = response.json()
-  t.ok(cspCache.script)
-  t.ok(cspCache.style)
+  t.assert.ok(cspCache.script)
+  t.assert.ok(cspCache.style)
 
   response = await fastify.inject({ method: 'GET', path: '/with-csp' })
   const newCsp = response.json()
-  t.not(cspCache, newCsp)
-  t.ok(cspCache.script)
-  t.ok(cspCache.style)
+  t.assert.notEqual(cspCache, newCsp)
+  t.assert.ok(cspCache.script)
+  t.assert.ok(cspCache.style)
 })
 
 test('It should not set default directives when route useDefaults is set to `false`', async (t) => {
@@ -201,31 +249,41 @@ test('It should not set default directives when route useDefaults is set to `fal
     global: false,
     enableCSPNonces: false,
     contentSecurityPolicy: {
-      directives: {
-      }
+      directives: {}
     }
   })
 
-  fastify.get('/', {
-    helmet: {
-      contentSecurityPolicy: {
-        useDefaults: false,
-        directives: {
-          'default-src': ["'self'"],
-          'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
-          'style-src': ["'self'", "'unsafe-inline'"]
+  fastify.get(
+    '/',
+    {
+      helmet: {
+        contentSecurityPolicy: {
+          useDefaults: false,
+          directives: {
+            'default-src': ["'self'"],
+            'script-src': ["'self'", "'unsafe-eval'", "'unsafe-inline'"],
+            'style-src': ["'self'", "'unsafe-inline'"]
+          }
         }
       }
+    },
+    (request, reply) => {
+      reply.send({ hello: 'world' })
     }
-  }, (request, reply) => {
-    reply.send({ hello: 'world' })
-  })
+  )
 
   const response = await fastify.inject({ method: 'GET', path: '/' })
 
-  t.has(response.headers, {
-    'content-security-policy': "default-src 'self';script-src 'self' 'unsafe-eval' 'unsafe-inline';style-src 'self' 'unsafe-inline'"
-  })
+  const expected = {
+    'content-security-policy':
+      "default-src 'self';script-src 'self' 'unsafe-eval' 'unsafe-inline';style-src 'self' 'unsafe-inline'"
+  }
+
+  const actualResponseHeaders = {
+    'content-security-policy': response.headers['content-security-policy']
+  }
+
+  t.assert.deepStrictEqual(actualResponseHeaders, expected)
 })
 
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
@@ -237,8 +295,8 @@ test('It should be able to conditionally apply the middlewares through the `helm
   fastify.get('/:condition', async (request, reply) => {
     const { condition } = request.params
 
-    t.ok(reply.helmet)
-    t.not(reply.helmet, null)
+    t.assert.ok(reply.helmet)
+    t.assert.notEqual(reply.helmet, null)
 
     if (condition !== 'frameguard') {
       await reply.helmet({ frameguard: false })
@@ -265,9 +323,19 @@ test('It should be able to conditionally apply the middlewares through the `helm
       path: '/no-frameguard'
     })
 
-    t.equal(response.statusCode, 200)
-    t.notMatch(response.headers, maybeExpected)
-    t.has(response.headers, expected)
+    const actualResponseHeaders = {
+      'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+      'x-download-options': response.headers['x-download-options'],
+      'x-content-type-options': response.headers['x-content-type-options'],
+      'x-xss-protection': response.headers['x-xss-protection']
+    }
+
+    t.assert.equal(response.statusCode, 200)
+    t.assert.notDeepStrictEqual(
+      response.headers['x-frame-options'],
+      maybeExpected['x-frame-options']
+    )
+    t.assert.deepStrictEqual(actualResponseHeaders, expected)
   }
 
   const response = await fastify.inject({
@@ -275,9 +343,19 @@ test('It should be able to conditionally apply the middlewares through the `helm
     path: '/frameguard'
   })
 
-  t.equal(response.statusCode, 200)
-  t.has(response.headers, maybeExpected)
-  t.has(response.headers, expected)
+  const actualResponseHeaders = {
+    'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+    'x-download-options': response.headers['x-download-options'],
+    'x-content-type-options': response.headers['x-content-type-options'],
+    'x-xss-protection': response.headers['x-xss-protection']
+  }
+
+  t.assert.equal(response.statusCode, 200)
+  t.assert.deepStrictEqual(
+    response.headers['x-frame-options'],
+    maybeExpected['x-frame-options']
+  )
+  t.assert.deepStrictEqual(actualResponseHeaders, expected)
 })
 
 test('It should throw an error when route specific helmet options are of an invalid type', async (t) => {
@@ -291,8 +369,11 @@ test('It should throw an error when route specific helmet options are of an inva
       return { message: 'ok' }
     })
   } catch (error) {
-    t.ok(error)
-    t.equal(error.message, 'Unknown value for route helmet configuration')
+    t.assert.ok(error)
+    t.assert.equal(
+      error.message,
+      'Unknown value for route helmet configuration'
+    )
   }
 })
 
@@ -314,17 +395,21 @@ test('It should forward `helmet` reply decorator and route specific errors to `f
     return { message: 'ok' }
   })
 
-  fastify.get('/helmet-route-configuration-error', {
-    helmet: {
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'", () => 'bad;value']
+  fastify.get(
+    '/helmet-route-configuration-error',
+    {
+      helmet: {
+        contentSecurityPolicy: {
+          directives: {
+            defaultSrc: ["'self'", () => 'bad;value']
+          }
         }
       }
+    },
+    async (request, reply) => {
+      return { message: 'ok' }
     }
-  }, async (request, reply) => {
-    return { message: 'ok' }
-  })
+  )
 
   const notExpected = {
     'x-dns-prefetch-control': 'off',
@@ -340,12 +425,19 @@ test('It should forward `helmet` reply decorator and route specific errors to `f
       path: '/helmet-reply-decorator-error'
     })
 
-    t.equal(response.statusCode, 500)
-    t.equal(
+    const actualResponseHeaders = {
+      'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+      'x-download-options': response.headers['x-download-options'],
+      'x-content-type-options': response.headers['x-content-type-options'],
+      'x-xss-protection': response.headers['x-xss-protection']
+    }
+
+    t.assert.equal(response.statusCode, 500)
+    t.assert.equal(
       JSON.parse(response.payload).message,
       'Content-Security-Policy received an invalid directive value for "default-src"'
     )
-    t.notMatch(response.headers, notExpected)
+    t.assert.notDeepStrictEqual(actualResponseHeaders, notExpected)
   }
 
   const response = await fastify.inject({
@@ -353,10 +445,17 @@ test('It should forward `helmet` reply decorator and route specific errors to `f
     path: '/helmet-route-configuration-error'
   })
 
-  t.equal(response.statusCode, 500)
-  t.equal(
+  const actualResponseHeaders = {
+    'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+    'x-download-options': response.headers['x-download-options'],
+    'x-content-type-options': response.headers['x-content-type-options'],
+    'x-xss-protection': response.headers['x-xss-protection']
+  }
+
+  t.assert.equal(response.statusCode, 500)
+  t.assert.equal(
     JSON.parse(response.payload).message,
     'Content-Security-Policy received an invalid directive value for "default-src"'
   )
-  t.notMatch(response.headers, notExpected)
+  t.assert.notDeepStrictEqual(actualResponseHeaders, notExpected)
 })
