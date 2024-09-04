@@ -11,7 +11,7 @@
     "lint:fix": "standard --fix | snazzy",
     "test": "npm run lint && npm run unit && npm run typescript",
     "test:ci": "npm run lint && npm run coverage && npm run typescript",
-    "unit": "c8 node --test",
+    "unit": "c8 --100 node --test",
     "unit:report": "npm run unit -- --coverage-report=html",
     "unit:verbose": "npm run unit -- -Rspec",
     "typescript": "tsd"
