@@ -1,6 +1,6 @@
 {
   "name": "@fastify/helmet",
-  "version": "12.0.0-pre.fv5.2",
+  "version": "12.0.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "type": "commonjs",
@@ -40,13 +40,13 @@
     "@fastify/pre-commit": "^2.1.0",
     "@types/node": "^22.0.0",
     "c8": "^10.1.2",
-    "fastify": "^5.0.0-alpha.3",
+    "fastify": "^5.0.0-alpha.4",
     "snazzy": "^9.0.0",
     "standard": "^17.1.0",
     "tsd": "^0.31.0"
   },
   "dependencies": {
-    "fastify-plugin": "^5.0.0-pre.fv5.1",
+    "fastify-plugin": "^5.0.0",
     "helmet": "^7.1.0"
   },
   "tsd": {
