@@ -33,7 +33,7 @@ async function fastifyHelmet (fastify, options) {
     }
   })
 
-  fastify.addHook('onRequest', async (request, reply) => {
+  fastify.addHook('onRequest', async function helmetConfigureReply (request, reply) {
     /* c8 ignore next */
     const { helmet: routeOptions } = request.routeOptions?.config || request.routeConfig
 
@@ -50,7 +50,7 @@ async function fastifyHelmet (fastify, options) {
     return replyDecorators(request, reply, globalConfiguration, enableCSPNonces)
   })
 
-  fastify.addHook('onRequest', (request, reply, next) => {
+  fastify.addHook('onRequest', function helmetApplyHeaders (request, reply, next) {
     /* c8 ignore next */
     const { helmet: routeOptions } = request.routeOptions?.config || request.routeConfig
 
