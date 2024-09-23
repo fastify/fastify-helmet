@@ -97,7 +97,7 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
 }
 
 async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
-  if (enableCSP === true) {
+  if (enableCSP === true && configuration.contentSecurityPolicy !== false) {
     const cspDirectives = configuration.contentSecurityPolicy
       ? configuration.contentSecurityPolicy.directives
       : helmet.contentSecurityPolicy.getDefaultDirectives()
