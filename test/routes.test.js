@@ -286,6 +286,44 @@ test('It should not set default directives when route useDefaults is set to `fal
   t.assert.deepStrictEqual(actualResponseHeaders, expected)
 })
 
+test('It should not set `content-security-policy` header, if route contentSecurityPolicy is false', async (t) => {
+  t.plan(1)
+
+  const fastify = Fastify()
+
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: false,
+    contentSecurityPolicy: {
+      directives: {}
+    }
+  })
+
+  fastify.get(
+    '/',
+    {
+      helmet: {
+        contentSecurityPolicy: false
+      }
+    },
+    (request, reply) => {
+      reply.send({ hello: 'world' })
+    }
+  )
+
+  const response = await fastify.inject({ method: 'GET', path: '/' })
+
+  const expected = {
+    'content-security-policy': undefined
+  }
+
+  const actualResponseHeaders = {
+    'content-security-policy': response.headers['content-security-policy']
+  }
+
+  t.assert.deepStrictEqual(actualResponseHeaders, expected)
+})
+
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
   t.plan(10)
 
