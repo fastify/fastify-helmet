@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "fastify-plugin": "^5.0.0",
-    "helmet": "^7.1.0"
+    "helmet": "^8.0.0"
   },
   "tsd": {
     "directory": "test/types"
