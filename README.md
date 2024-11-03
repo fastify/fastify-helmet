@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/fastify/fastify-helmet/workflows/CI/badge.svg)
 [![NPM version](https://img.shields.io/npm/v/@fastify/helmet)](https://www.npmjs.com/package/@fastify/helmet)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/) 
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 
 Important security headers for Fastify. It is a tiny wrapper around
 [helmet](https://npm.im/helmet).
@@ -88,7 +88,7 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
     await reply.helmet({ frameguard: false })
   }
 
-  return { 
+  return {
     message: 'we use the helmet reply decorator to conditionally apply helmet middlewares'
   }
 })
@@ -96,7 +96,7 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
 
 ### `helmet` route option
 
-`@fastify/helmet` allows you to enable, disable, and customize helmet for each one of your application hooks by using the 
+`@fastify/helmet` allows you to enable, disable, and customize helmet for each one of your application hooks by using the
 `helmet` shorthand route option when you register your application routes.
 
 If you want to disable helmet for a specific endpoint you must pass `{ helmet: false }` to your route options.
@@ -169,7 +169,7 @@ fastify.register(
 fastify.register(
   helmet,
   // customize content security policy with nonce generation
-  { 
+  {
     enableCSPNonces: true,
     contentSecurityPolicy: {
       directives: {
@@ -192,7 +192,7 @@ fastify.get('/', function(request, reply) {
 ```js
 fastify.register(
   helmet,
-  { 
+  {
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
