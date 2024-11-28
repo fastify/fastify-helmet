@@ -6,15 +6,11 @@
   "type": "commonjs",
   "types": "types/index.d.ts",
   "scripts": {
-    "coverage": "npm run unit -- --coverage-report=lcovonly",
-    "lint": "standard | snazzy",
-    "lint:fix": "standard --fix | snazzy",
-    "test": "npm run lint && npm run unit && npm run typescript",
-    "test:ci": "npm run lint && npm run coverage && npm run typescript",
-    "unit": "c8 --100 node --test",
-    "unit:report": "npm run unit -- --coverage-report=html",
-    "unit:verbose": "npm run unit -- -Rspec",
-    "typescript": "tsd"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "npm run test:unit && npm run test:typescript",
+    "test:typescript": "tsd",
+    "test:unit": "c8 --100 node --test"
   },
   "repository": {
     "type": "git",
@@ -41,8 +37,7 @@
     "@types/node": "^22.0.0",
     "c8": "^10.1.2",
     "fastify": "^5.0.0",
-    "snazzy": "^9.0.0",
-    "standard": "^17.1.0",
+    "neostandard": "^0.11.9",
     "tsd": "^0.31.0"
   },
   "dependencies": {

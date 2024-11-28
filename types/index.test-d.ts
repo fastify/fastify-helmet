@@ -1,19 +1,19 @@
-import fastify, { FastifyPluginAsync } from 'fastify';
-import helmet from 'helmet';
-import { expectAssignable, expectError, expectType } from 'tsd';
-import fastifyHelmet, { FastifyHelmetOptions, FastifyHelmetRouteOptions } from '..';
+import fastify, { FastifyPluginAsync } from 'fastify'
+import helmet from 'helmet'
+import { expectAssignable, expectError, expectType } from 'tsd'
+import fastifyHelmet, { FastifyHelmetOptions, FastifyHelmetRouteOptions } from '..'
 
 // Plugin registered with no options
-const appOne = fastify();
-appOne.register(fastifyHelmet);
+const appOne = fastify()
+appOne.register(fastifyHelmet)
 
 // Plugin registered with an empty object option
-const appTwo = fastify();
-expectAssignable<FastifyHelmetOptions>({});
-appTwo.register(fastifyHelmet, {});
+const appTwo = fastify()
+expectAssignable<FastifyHelmetOptions>({})
+appTwo.register(fastifyHelmet, {})
 
 // Plugin registered with all helmet middlewares disabled
-const appThree = fastify();
+const appThree = fastify()
 const helmetOptions = {
   contentSecurityPolicy: false,
   dnsPrefetchControl: false,
@@ -25,12 +25,12 @@ const helmetOptions = {
   permittedCrossDomainPolicies: false,
   referrerPolicy: false,
   xssFilter: false
-};
-expectAssignable<FastifyHelmetOptions>(helmetOptions);
-appThree.register(fastifyHelmet, helmetOptions);
+}
+expectAssignable<FastifyHelmetOptions>(helmetOptions)
+appThree.register(fastifyHelmet, helmetOptions)
 
 // Plugin registered with helmet middlewares custom settings
-const appFour = fastify();
+const appFour = fastify()
 appFour.register(fastifyHelmet, {
   contentSecurityPolicy: {
     directives: {
@@ -61,21 +61,21 @@ appFour.register(fastifyHelmet, {
   // ieNoOpen: false,
   // noSniff: false,
   // xssFilter: false
-});
+})
 
 // Plugin registered with `enableCSPNonces` option and helmet default CSP settings
-const appFive = fastify();
-appFive.register(fastifyHelmet, { enableCSPNonces: true });
+const appFive = fastify()
+appFive.register(fastifyHelmet, { enableCSPNonces: true })
 
 appFive.get('/', function (request, reply) {
   expectType<{
     script: string;
     style: string;
-  }>(reply.cspNonce);
-});
+  }>(reply.cspNonce)
+})
 
 // Plugin registered with `enableCSPNonces` option and custom CSP settings
-const appSix = fastify();
+const appSix = fastify()
 appSix.register(fastifyHelmet, {
   enableCSPNonces: true,
   contentSecurityPolicy: {
@@ -84,41 +84,41 @@ appSix.register(fastifyHelmet, {
     },
     reportOnly: true
   }
-});
+})
 
 appSix.get('/', function (request, reply) {
   expectType<{
     script: string;
     style: string;
-  }>(reply.cspNonce);
-});
+  }>(reply.cspNonce)
+})
 
-const csp = fastifyHelmet.contentSecurityPolicy;
-expectType<typeof helmet.contentSecurityPolicy>(csp);
+const csp = fastifyHelmet.contentSecurityPolicy
+expectType<typeof helmet.contentSecurityPolicy>(csp)
 
 // Plugin registered with `global` set to `true`
-const appSeven = fastify();
-appSeven.register(fastifyHelmet, { global: true });
+const appSeven = fastify()
+appSeven.register(fastifyHelmet, { global: true })
 
 appSeven.get('/route-with-disabled-helmet', { helmet: false }, function (request, reply) {
-  expectType<typeof helmet>(reply.helmet());
-});
+  expectType<typeof helmet>(reply.helmet())
+})
 
 expectError(
   appSeven.get('/route-with-disabled-helmet', {
     helmet: 'trigger a typescript error'
   }, function (request, reply) {
-    expectType<typeof helmet>(reply.helmet());
+    expectType<typeof helmet>(reply.helmet())
   })
-);
+)
 
 // Plugin registered with `global` set to `false`
-const appEight = fastify();
-appEight.register(fastifyHelmet, { global: false });
+const appEight = fastify()
+appEight.register(fastifyHelmet, { global: false })
 
 appEight.get('/disabled-helmet', function (request, reply) {
-  expectType<typeof helmet>(reply.helmet(helmetOptions));
-});
+  expectType<typeof helmet>(reply.helmet(helmetOptions))
+})
 
 const routeHelmetOptions = {
   helmet: {
@@ -141,44 +141,44 @@ const routeHelmetOptions = {
       preload: true
     },
     permittedCrossDomainPolicies: {
-      permittedPolicies: 'all'  as const
+      permittedPolicies: 'all' as const
     },
     referrerPolicy: {
       policy: 'no-referrer' as const
     }
   }
-};
-expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions);
+}
+expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions)
 
 appEight.get('/enabled-helmet', routeHelmetOptions, function (request, reply) {
-  expectType<typeof helmet>(reply.helmet());
+  expectType<typeof helmet>(reply.helmet())
   expectType<{
     script: string;
     style: string;
-  }>(reply.cspNonce);
-});
+  }>(reply.cspNonce)
+})
 
 appEight.get('/enable-framegard', {
   helmet: { frameguard: true }
 }, function (request, reply) {
-  expectType<typeof helmet>(reply.helmet());
+  expectType<typeof helmet>(reply.helmet())
   expectType<{
     script: string;
     style: string;
-  }>(reply.cspNonce);
-});
+  }>(reply.cspNonce)
+})
 
 // Plugin registered with an invalid helmet option
-const appThatTriggerAnError = fastify();
+const appThatTriggerAnError = fastify()
 expectError(
   appThatTriggerAnError.register(fastifyHelmet, {
     thisOptionDoesNotExist: 'trigger a typescript error'
   })
-);
+)
 
 // fastify-helmet instance is using the FastifyHelmetOptions options
 expectType<
   FastifyPluginAsync<FastifyHelmetOptions> & {
     contentSecurityPolicy: typeof helmet.contentSecurityPolicy;
   }
->(fastifyHelmet);
+>(fastifyHelmet)
