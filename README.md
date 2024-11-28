@@ -261,4 +261,4 @@ fastify.register(
 
 ## License
 
-MIT
+Licensed under [MIT](./LICENSE).
