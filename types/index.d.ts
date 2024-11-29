@@ -1,8 +1,9 @@
-import { FastifyPluginAsync, RawServerBase, RawServerDefault } from 'fastify';
-import helmet, { contentSecurityPolicy, HelmetOptions } from 'helmet';
+import { FastifyPluginAsync, RawServerBase, RawServerDefault } from 'fastify'
+import helmet, { contentSecurityPolicy, HelmetOptions } from 'helmet'
 
 declare module 'fastify' {
   export interface RouteShorthandOptions<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     RawServer extends RawServerBase = RawServerDefault
   > extends fastifyHelmet.FastifyHelmetRouteOptions { }
 
@@ -19,7 +20,7 @@ declare module 'fastify' {
 
 type FastifyHelmet = FastifyPluginAsync<fastifyHelmet.FastifyHelmetOptions> & {
   contentSecurityPolicy: typeof contentSecurityPolicy;
-};
+}
 
 declare namespace fastifyHelmet {
 
@@ -30,11 +31,11 @@ declare namespace fastifyHelmet {
   export type FastifyHelmetOptions = {
     enableCSPNonces?: boolean,
     global?: boolean;
-  } & NonNullable<HelmetOptions>;
+  } & NonNullable<HelmetOptions>
 
   export const fastifyHelmet: FastifyHelmet
   export { fastifyHelmet as default }
 }
 
-declare function fastifyHelmet(...params: Parameters<FastifyHelmet>): ReturnType<FastifyHelmet>
+declare function fastifyHelmet (...params: Parameters<FastifyHelmet>): ReturnType<FastifyHelmet>
 export = fastifyHelmet
