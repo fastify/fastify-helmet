@@ -3,6 +3,7 @@ import helmet, { contentSecurityPolicy, HelmetOptions } from 'helmet'
 
 declare module 'fastify' {
   export interface RouteShorthandOptions<
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     RawServer extends RawServerBase = RawServerDefault
   > extends fastifyHelmet.FastifyHelmetRouteOptions { }
 
