@@ -29,7 +29,7 @@ See [Fastify's LTS policy](https://github.com/fastify/fastify/blob/main/docs/Ref
 
 ## Usage
 
-Simply require this plugin, and the basic security headers will be set.
+Simply require this plugin and the basic security headers will be set.
 
 ```js
 const fastify = require('fastify')()
