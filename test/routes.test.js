@@ -10,7 +10,7 @@ test('It should apply route specific helmet options over the global options', as
   const fastify = Fastify()
   await fastify.register(helmet, { global: true })
 
-  fastify.get('/', { helmet: { frameguard: false } }, (request, reply) => {
+  fastify.get('/', { helmet: { frameguard: false } }, (_request, reply) => {
     reply.send({ hello: 'world' })
   })
 
@@ -50,11 +50,11 @@ test('It should disable helmet on specific route when route `helmet` option is s
   const fastify = Fastify()
   await fastify.register(helmet, { global: true })
 
-  fastify.get('/disabled', { helmet: false }, (request, reply) => {
+  fastify.get('/disabled', { helmet: false }, (_request, reply) => {
     reply.send({ hello: 'disabled' })
   })
 
-  fastify.get('/enabled', (request, reply) => {
+  fastify.get('/enabled', (_request, reply) => {
     reply.send({ hello: 'enabled' })
   })
 
@@ -129,7 +129,7 @@ test('It should add CSPNonce decorator and hooks when route `enableCSPNonces` op
         enableCSPNonces: true
       }
     },
-    (request, reply) => {
+    (_request, reply) => {
       t.assert.ok(reply.cspNonce)
       reply.send(reply.cspNonce)
     }
@@ -160,7 +160,7 @@ test('It should add CSPNonce decorator and hooks with default options when route
     enableCSPNonces: false
   })
 
-  fastify.get('/no-csp', (request, reply) => {
+  fastify.get('/no-csp', (_request, reply) => {
     t.assert.equal(reply.cspNonce, null)
     reply.send({ message: 'no csp' })
   })
@@ -172,7 +172,7 @@ test('It should add CSPNonce decorator and hooks with default options when route
         enableCSPNonces: true
       }
     },
-    (request, reply) => {
+    (_request, reply) => {
       t.assert.ok(reply.cspNonce)
       reply.send(reply.cspNonce)
     }
@@ -207,7 +207,7 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
     enableCSPNonces: true
   })
 
-  fastify.get('/with-csp', (request, reply) => {
+  fastify.get('/with-csp', (_request, reply) => {
     t.assert.ok(reply.cspNonce)
     reply.send(reply.cspNonce)
   })
@@ -215,7 +215,7 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
   fastify.get(
     '/no-csp',
     { helmet: { enableCSPNonces: false } },
-    (request, reply) => {
+    (_request, reply) => {
       t.assert.equal(reply.cspNonce, null)
       reply.send({ message: 'no csp' })
     }
@@ -267,7 +267,7 @@ test('It should not set default directives when route useDefaults is set to `fal
         }
       }
     },
-    (request, reply) => {
+    (_request, reply) => {
       reply.send({ hello: 'world' })
     }
   )
@@ -306,7 +306,7 @@ test('It should not set `content-security-policy` header, if route contentSecuri
         contentSecurityPolicy: false
       }
     },
-    (request, reply) => {
+    (_request, reply) => {
       reply.send({ hello: 'world' })
     }
   )
@@ -403,7 +403,7 @@ test('It should throw an error when route specific helmet options are of an inva
   await fastify.register(helmet)
 
   try {
-    fastify.get('/', { helmet: 'invalid_options' }, (request, reply) => {
+    fastify.get('/', { helmet: 'invalid_options' }, () => {
       return { message: 'ok' }
     })
   } catch (error) {
@@ -421,7 +421,7 @@ test('It should forward `helmet` reply decorator and route specific errors to `f
   const fastify = Fastify()
   await fastify.register(helmet, { global: false })
 
-  fastify.get('/helmet-reply-decorator-error', async (request, reply) => {
+  fastify.get('/helmet-reply-decorator-error', async (_request, reply) => {
     await reply.helmet({
       contentSecurityPolicy: {
         directives: {
@@ -444,7 +444,7 @@ test('It should forward `helmet` reply decorator and route specific errors to `f
         }
       }
     },
-    async (request, reply) => {
+    async () => {
       return { message: 'ok' }
     }
   )

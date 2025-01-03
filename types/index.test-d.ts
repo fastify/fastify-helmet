@@ -67,7 +67,7 @@ appFour.register(fastifyHelmet, {
 const appFive = fastify()
 appFive.register(fastifyHelmet, { enableCSPNonces: true })
 
-appFive.get('/', function (request, reply) {
+appFive.get('/', function (_request, reply) {
   expectType<{
     script: string;
     style: string;
@@ -86,7 +86,7 @@ appSix.register(fastifyHelmet, {
   }
 })
 
-appSix.get('/', function (request, reply) {
+appSix.get('/', function (_request, reply) {
   expectType<{
     script: string;
     style: string;
@@ -100,14 +100,14 @@ expectType<typeof helmet.contentSecurityPolicy>(csp)
 const appSeven = fastify()
 appSeven.register(fastifyHelmet, { global: true })
 
-appSeven.get('/route-with-disabled-helmet', { helmet: false }, function (request, reply) {
+appSeven.get('/route-with-disabled-helmet', { helmet: false }, function (_request, reply) {
   expectType<typeof helmet>(reply.helmet())
 })
 
 expectError(
   appSeven.get('/route-with-disabled-helmet', {
     helmet: 'trigger a typescript error'
-  }, function (request, reply) {
+  }, function (_request, reply) {
     expectType<typeof helmet>(reply.helmet())
   })
 )
@@ -116,7 +116,7 @@ expectError(
 const appEight = fastify()
 appEight.register(fastifyHelmet, { global: false })
 
-appEight.get('/disabled-helmet', function (request, reply) {
+appEight.get('/disabled-helmet', function (_request, reply) {
   expectType<typeof helmet>(reply.helmet(helmetOptions))
 })
 
@@ -150,7 +150,7 @@ const routeHelmetOptions = {
 }
 expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions)
 
-appEight.get('/enabled-helmet', routeHelmetOptions, function (request, reply) {
+appEight.get('/enabled-helmet', routeHelmetOptions, function (_request, reply) {
   expectType<typeof helmet>(reply.helmet())
   expectType<{
     script: string;
@@ -160,7 +160,7 @@ appEight.get('/enabled-helmet', routeHelmetOptions, function (request, reply) {
 
 appEight.get('/enable-framegard', {
   helmet: { frameguard: true }
-}, function (request, reply) {
+}, function (_request, reply) {
   expectType<typeof helmet>(reply.helmet())
   expectType<{
     script: string;
