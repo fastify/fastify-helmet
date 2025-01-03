@@ -26,14 +26,14 @@ const opts = {
   }
 }
 
-fastify.get('/', opts, function (request, reply) {
+fastify.get('/', opts, function (_request, reply) {
   reply
     .header('Content-Type', 'application/json')
     .code(200)
     .send({ hello: 'world' })
 })
 
-fastify.get('/route-with-disabled-helmet', { ...opts, helmet: false }, function (request, reply) {
+fastify.get('/route-with-disabled-helmet', { ...opts, helmet: false }, function (_request, reply) {
   reply
     .header('Content-Type', 'application/json')
     .code(200)
