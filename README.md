@@ -52,7 +52,7 @@ and a `reply.helmet` decorator.
 
 It accepts the same options as `helmet`. See [helmet documentation](https://helmetjs.github.io/).
 
-### Apply Helmet to all your application routes
+### Apply Helmet to all routes
 
 Pass `{ global: true }` to register Helmet for all routes.
 For granular control, pass `{ global: false }` to disable it at a global scope.
@@ -231,7 +231,7 @@ fastify.register(
 )
 
 fastify.get('/', function(request, reply) {
-  // you can access the generated nonce by "reply.raw"
+  // access the generated nonce by "reply.raw"
   reply.raw.scriptNonce
   reply.raw.styleNonce
 })
