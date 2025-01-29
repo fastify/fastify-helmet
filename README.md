@@ -4,8 +4,7 @@
 [![NPM version](https://img.shields.io/npm/v/@fastify/helmet)](https://www.npmjs.com/package/@fastify/helmet)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
-Important security headers for Fastify. It is a tiny wrapper around
-[helmet](https://npm.im/helmet).
+Important security headers for Fastify, using [helmet](https://npm.im/helmet).
 
 ## Install
 ```
@@ -29,7 +28,7 @@ See [Fastify's LTS policy](https://github.com/fastify/fastify/blob/main/docs/Ref
 
 ## Usage
 
-Simply require this plugin and the basic security headers will be set.
+Simply require this plugin to set basic security headers.
 
 ```js
 const fastify = require('fastify')()
@@ -48,16 +47,16 @@ fastify.listen({ port: 3000 }, err => {
 
 ## How it works
 
-`@fastify/helmet` is a tiny wrapper around helmet that adds an `'onRequest'` hook
+`@fastify/helmet` is a wrapper around `helmet` that adds an `'onRequest'` hook
 and a `reply.helmet` decorator.
 
-It accepts the same options as helmet, and you can see more in [the helmet documentation](https://helmetjs.github.io/).
+It accepts the same options as `helmet`. See [helmet documentation](https://helmetjs.github.io/).
 
 ### Apply Helmet to all your application routes
 
-By passing `{ global: true }` into the options, `@fastify/helmet` allows you to register Helmet for all your application
-routes by default. If you want a more granular control on how to apply Helmet to your application you can choose to
-disable it on a global scope by passing `{ global: false }` to the options. By default, this option is set to `true`.
+Pass `{ global: true }` to register Helmet for all routes.
+For granular control, pass `{ global: false }` to disable it at a global scope.
+Default is `true`.
 
 #### Example - enable `@fastify/helmet` globally
 
@@ -111,13 +110,12 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
 
 ### `helmet` route option
 
-`@fastify/helmet` allows you to enable, disable, and customize helmet for each one of your application hooks by using the
-`helmet` shorthand route option when you register your application routes.
+`@fastify/helmet` allows enabling, disabling, and customizing `helmet` for each route using the `helmet` shorthand option
+when registering routes.
 
-If you want to disable helmet for a specific endpoint you must pass `{ helmet: false }` to your route options.
+To disable `helmet` for a specific endpoint, pass `{ helmet: false }` to the route options.
 
-If you want to enable or customize helmet for a specific endpoint you must pass a helmet configuration object to your
-route options. E.g.: `{ helmet: { frameguard: false } }`.
+To enable or customize `helmet` for a specific endpoint, pass a configuration object to route options, e.g., `{ helmet: { frameguard: false } }`.
 
 #### Example - `@fastify/helmet` configuration using the `helmet` shorthand route option
 
@@ -166,11 +164,11 @@ fastify.get('/route-with-custom-helmet-configuration', {
 
 ### Content-Security-Policy Nonce
 
-`@fastify/helmet` provide a simple way for `csp nonces generation`. You can enable this behavior by passing
-`{ enableCSPNonces: true }` into the options. Then, you can retrieve the `nonces` through `reply.cspNonce`.
+`@fastify/helmet` also allows CSP nonce generation, which can be enabled by passing `{ enableCSPNonces: true }` into the options.
+Retrieve the `nonces` through `reply.cspNonce`.
 
-> Note: This feature is implemented inside this module. It is not a valid option or supported by helmet.
-> If you need to use helmet feature only for csp nonce you can follow the example [here](#example---generate-by-helmet).
+> 🛈 Note: This feature is implemented by this module and is not supported by `helmet`.
+> For using `helmet` only for csp nonces, see [example](#example---generate-by-helmet).
 
 #### Example - Generate by options
 
@@ -242,8 +240,8 @@ fastify.get('/', function(request, reply) {
 
 ### Disable Default `helmet` Directives
 
-By default, `helmet` will add [a default set of CSP directives](https://github.com/helmetjs/helmet/tree/main/middlewares/content-security-policy#content-security-policy-middleware) to the response.
-This behavior can be disabled by setting `useDefaults: false` in the `contentSecurityPolicy` configuration.
+By default, `helmet` adds [a default set of CSP directives](https://github.com/helmetjs/helmet/tree/main/middlewares/content-security-policy#content-security-policy-middleware) to the response.
+Disable this by setting `useDefaults: false` in the `contentSecurityPolicy` configuration.
 
 ```js
 fastify.register(
