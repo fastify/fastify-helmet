@@ -100,6 +100,11 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
   } else {
     // we apply customized options
     await reply.helmet({ frameguard: false })
+    // you can also pass a function returning customized options
+    // await reply.helmet((opts) => {
+    //   opts.frameguard = false
+    //   return opts
+    // })
   }
 
   return {
