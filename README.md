@@ -100,9 +100,12 @@ fastify.get('/here-we-use-helmet-reply-decorator', async (request, reply) => {
   } else {
     // we apply customized options
     await reply.helmet({ frameguard: false })
-    // you can also pass a function returning customized options
+    // You can also pass a function returning customized options.
+    // This is useful for modifying previously set options.
     // await reply.helmet((opts) => {
-    //   opts.frameguard = false
+    //   // Here we're adding a new option to a directive without having to
+    //   // replace the entire `contentSecurityPolicy` object.
+    //   opts.contentSecurityPolicy.directives['script-src'].push('"nonce-123abc"');
     //   return opts
     // })
   }
