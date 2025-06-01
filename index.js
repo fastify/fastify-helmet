@@ -91,7 +91,7 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
     let helmetConfiguration = configuration
 
     if (typeof opts === 'function') {
-      helmetConfiguration = opts(structuredClone(helmetConfiguration))
+      helmetConfiguration = opts(helmetConfiguration)
     } else if (opts) {
       helmetConfiguration = Object.assign(Object.create(null), configuration, opts)
     }
