@@ -34,8 +34,7 @@ async function fastifyHelmet (fastify, options) {
   })
 
   fastify.addHook('onRequest', async function helmetConfigureReply (request, reply) {
-    /* c8 ignore next */
-    const { helmet: routeOptions } = request.routeOptions?.config || request.routeConfig
+    const { helmet: routeOptions } = request.routeOptions?.config
 
     if (routeOptions !== undefined) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
@@ -51,8 +50,7 @@ async function fastifyHelmet (fastify, options) {
   })
 
   fastify.addHook('onRequest', function helmetApplyHeaders (request, reply, next) {
-    /* c8 ignore next */
-    const { helmet: routeOptions } = request.routeOptions?.config || request.routeConfig
+    const { helmet: routeOptions } = request.routeOptions?.config
 
     if (routeOptions !== undefined) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
@@ -135,6 +133,7 @@ async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
 
 // Helmet forward a typeof Error object so we just need to throw it as is.
 function done (error) {
+  /* c8 ignore next */
   if (error) throw error
 }
 
