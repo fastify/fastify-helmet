@@ -661,6 +661,55 @@ test('It should be able to pass custom options to the `helmet` reply decorator',
   t.assert.deepStrictEqual(actualResponseHeaders, expected)
 })
 
+test('It should be able to pass custom options as a function to the `helmet` reply decorator', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/', async (_request, reply) => {
+    t.assert.ok(reply.helmet)
+    t.assert.notDeepStrictEqual(reply.helmet, null)
+
+    await reply.helmet((opts) => {
+      opts.frameguard = false
+
+      return opts
+    })
+    return { message: 'ok' }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/'
+  })
+
+  const expected = {
+    'x-dns-prefetch-control': 'off',
+    'x-download-options': 'noopen',
+    'x-content-type-options': 'nosniff',
+    'x-xss-protection': '0'
+  }
+
+  const notExpected = {
+    'x-frame-options': 'SAMEORIGIN'
+  }
+
+  const actualResponseHeaders = {
+    'x-dns-prefetch-control': response.headers['x-dns-prefetch-control'],
+    'x-download-options': response.headers['x-download-options'],
+    'x-content-type-options': response.headers['x-content-type-options'],
+    'x-xss-protection': response.headers['x-xss-protection']
+  }
+
+  const actualNotExpectedHeaders = {
+    'x-frame-options': response.headers['x-frame-options']
+  }
+
+  t.assert.notDeepStrictEqual(actualNotExpectedHeaders, notExpected)
+  t.assert.deepStrictEqual(actualResponseHeaders, expected)
+})
+
 test('It should be able to conditionally apply the middlewares through the `helmet` reply decorator', async (t) => {
   t.plan(10)
 

@@ -86,9 +86,13 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
   }
 
   reply.helmet = function (opts) {
-    const helmetConfiguration = opts
-      ? Object.assign(Object.create(null), configuration, opts)
-      : configuration
+    let helmetConfiguration = configuration
+
+    if (typeof opts === 'function') {
+      helmetConfiguration = opts(helmetConfiguration)
+    } else if (opts) {
+      helmetConfiguration = Object.assign(Object.create(null), configuration, opts)
+    }
 
     return helmet(helmetConfiguration)(request.raw, reply.raw, done)
   }
