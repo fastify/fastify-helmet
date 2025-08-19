@@ -131,8 +131,12 @@ async function buildHelmetOnRoutes (request, reply, configuration, enableCSP) {
   }
 }
 
-// Helmet forward a typeof Error object so we just need to throw it as is.
 function done (error) {
+  // Helmet used to forward an Error object, so we could just rethrow it.
+  // Since Helmet v8.1.0 (see PR https://github.com/helmetjs/helmet/pull/485 ),
+  // errors are thrown directly instead of being passed to a callback.
+  // We keep the argument for compatibility, as v8.1.0 still accepts it
+  // (see https://github.com/helmetjs/helmet/blob/v8.1.0/index.ts#L109 ).
   /* c8 ignore next */
   if (error) throw error
 }
