@@ -34,7 +34,7 @@ async function fastifyHelmet (fastify, options) {
   })
 
   fastify.addHook('onRequest', async function helmetConfigureReply (request, reply) {
-    const { helmet: routeOptions } = request.routeOptions?.config
+    const { helmet: routeOptions } = request.routeOptions.config
 
     if (routeOptions !== undefined) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
@@ -50,7 +50,7 @@ async function fastifyHelmet (fastify, options) {
   })
 
   fastify.addHook('onRequest', function helmetApplyHeaders (request, reply, next) {
-    const { helmet: routeOptions } = request.routeOptions?.config
+    const { helmet: routeOptions } = request.routeOptions.config
 
     if (routeOptions !== undefined) {
       const { enableCSPNonces: enableRouteCSPNonces, skipRoute, ...helmetRouteConfiguration } = routeOptions
