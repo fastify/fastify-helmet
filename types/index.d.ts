@@ -1,4 +1,11 @@
-import { FastifyPluginAsync, RawServerBase, RawServerDefault } from 'fastify'
+import {
+  AnyFastifyInstance,
+  ApplyDecorators,
+  FastifyPluginAsync,
+  RawServerBase,
+  RawServerDefault,
+  UnEncapsulatedPlugin
+} from 'fastify'
 import helmet, { contentSecurityPolicy, HelmetOptions } from 'helmet'
 
 declare module 'fastify' {
@@ -7,22 +14,29 @@ declare module 'fastify' {
     RawServer extends RawServerBase = RawServerDefault
   > extends fastifyHelmet.FastifyHelmetRouteOptions { }
 
-  interface FastifyReply {
-    cspNonce: {
-      script: string;
-      style: string;
-    },
-    helmet: (opts?: HelmetOptions) => typeof helmet
-  }
-
   export interface RouteOptions extends fastifyHelmet.FastifyHelmetRouteOptions { }
 }
 
-type FastifyHelmet = FastifyPluginAsync<fastifyHelmet.FastifyHelmetOptions> & {
-  contentSecurityPolicy: typeof contentSecurityPolicy;
-}
-
 declare namespace fastifyHelmet {
+  export type FastifyHelmetPluginDecorators = {
+    reply: {
+      cspNonce: {
+        script: string;
+        style: string;
+      };
+      helmet: (opts?: HelmetOptions) => typeof helmet;
+    }
+  }
+
+  export type FastifyHelmetPlugin<TInstance extends AnyFastifyInstance = AnyFastifyInstance> = UnEncapsulatedPlugin<
+    FastifyPluginAsync<
+      fastifyHelmet.FastifyHelmetOptions,
+      TInstance,
+      ApplyDecorators<TInstance, FastifyHelmetPluginDecorators>
+    >
+  > & {
+    contentSecurityPolicy: typeof contentSecurityPolicy;
+  }
 
   export interface FastifyHelmetRouteOptions {
     helmet?: Omit<FastifyHelmetOptions, 'global'> | false;
@@ -33,9 +47,9 @@ declare namespace fastifyHelmet {
     global?: boolean;
   } & NonNullable<HelmetOptions>
 
-  export const fastifyHelmet: FastifyHelmet
+  export const fastifyHelmet: FastifyHelmetPlugin
   export { fastifyHelmet as default }
 }
 
-declare function fastifyHelmet (...params: Parameters<FastifyHelmet>): ReturnType<FastifyHelmet>
+declare function fastifyHelmet (...params: Parameters<fastifyHelmet.FastifyHelmetPlugin>): ReturnType<fastifyHelmet.FastifyHelmetPlugin>
 export = fastifyHelmet

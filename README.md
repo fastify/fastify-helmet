@@ -50,6 +50,10 @@ fastify.listen({ port: 3000 }, err => {
 `@fastify/helmet` is a wrapper around `helmet` that adds an `'onRequest'` hook
 and a `reply.helmet` decorator.
 
+TypeScript note: after `fastify.register(helmet)`, `reply.helmet()` and
+`reply.cspNonce` are inferred from that registered instance. The `helmet`
+route option still uses Fastify route option augmentation.
+
 It accepts the same options as `helmet`. See [helmet documentation](https://helmetjs.github.io/).
 
 ### Apply Helmet to all routes
