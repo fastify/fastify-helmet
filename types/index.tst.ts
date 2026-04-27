@@ -9,7 +9,7 @@ appOne.register(fastifyHelmet)
 
 // Plugin registered with an empty object option
 const appTwo = fastify()
-expect({}).type.toBeAssignableTo<FastifyHelmetOptions>()
+expect<FastifyHelmetOptions>().type.toBeAssignableFrom({})
 appTwo.register(fastifyHelmet, {})
 
 // Plugin registered with all helmet middlewares disabled
@@ -26,7 +26,7 @@ const helmetOptions = {
   referrerPolicy: false,
   xssFilter: false
 }
-expect(helmetOptions).type.toBeAssignableTo<FastifyHelmetOptions>()
+expect<FastifyHelmetOptions>().type.toBeAssignableFrom(helmetOptions)
 appThree.register(fastifyHelmet, helmetOptions)
 
 // Plugin registered with helmet middlewares custom settings
@@ -93,15 +93,14 @@ appSix.get('/', function (_request, reply) {
   }>()
 })
 
-const csp = fastifyHelmet.contentSecurityPolicy
-expect(csp).type.toBe<typeof helmet.contentSecurityPolicy>()
+expect(fastifyHelmet.contentSecurityPolicy).type.toBe(helmet.contentSecurityPolicy)
 
 // Plugin registered with `global` set to `true`
 const appSeven = fastify()
 appSeven.register(fastifyHelmet, { global: true })
 
 appSeven.get('/route-with-disabled-helmet', { helmet: false }, function (_request, reply) {
-  expect(reply.helmet()).type.toBe<typeof helmet>()
+  expect(reply.helmet()).type.toBe(helmet)
 })
 
 appSeven.get(
@@ -111,7 +110,7 @@ appSeven.get(
     helmet: 'trigger a typescript error'
   },
   function (_request, reply) {
-    expect(reply.helmet()).type.toBe<typeof helmet>()
+    expect(reply.helmet()).type.toBe(helmet)
   }
 )
 
@@ -120,7 +119,7 @@ const appEight = fastify()
 appEight.register(fastifyHelmet, { global: false })
 
 appEight.get('/disabled-helmet', function (_request, reply) {
-  expect(reply.helmet(helmetOptions)).type.toBe<typeof helmet>()
+  expect(reply.helmet(helmetOptions)).type.toBe(helmet)
 })
 
 const routeHelmetOptions = {
@@ -154,7 +153,7 @@ const routeHelmetOptions = {
 expect(routeHelmetOptions).type.toBeAssignableTo<FastifyHelmetRouteOptions>()
 
 appEight.get('/enabled-helmet', routeHelmetOptions, function (_request, reply) {
-  expect(reply.helmet()).type.toBe<typeof helmet>()
+  expect(reply.helmet()).type.toBe(helmet)
   expect(reply.cspNonce).type.toBe<{
     script: string;
     style: string;
@@ -164,7 +163,7 @@ appEight.get('/enabled-helmet', routeHelmetOptions, function (_request, reply) {
 appEight.get('/enable-framegard', {
   helmet: { frameguard: true }
 }, function (_request, reply) {
-  expect(reply.helmet()).type.toBe<typeof helmet>()
+  expect(reply.helmet()).type.toBe(helmet)
   expect(reply.cspNonce).type.toBe<{
     script: string;
     style: string;
