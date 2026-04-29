@@ -1,7 +1,7 @@
 import fastify, { FastifyPluginAsync } from 'fastify'
 import helmet from 'helmet'
-import { expectAssignable, expectError, expectType } from 'tsd'
-import fastifyHelmet, { FastifyHelmetOptions, FastifyHelmetRouteOptions } from '..'
+import { expect } from 'tstyche'
+import fastifyHelmet, { FastifyHelmetOptions, FastifyHelmetRouteOptions } from '.'
 
 // Plugin registered with no options
 const appOne = fastify()
@@ -9,7 +9,7 @@ appOne.register(fastifyHelmet)
 
 // Plugin registered with an empty object option
 const appTwo = fastify()
-expectAssignable<FastifyHelmetOptions>({})
+expect<FastifyHelmetOptions>().type.toBeAssignableFrom({})
 appTwo.register(fastifyHelmet, {})
 
 // Plugin registered with all helmet middlewares disabled
@@ -26,7 +26,7 @@ const helmetOptions = {
   referrerPolicy: false,
   xssFilter: false
 }
-expectAssignable<FastifyHelmetOptions>(helmetOptions)
+expect<FastifyHelmetOptions>().type.toBeAssignableFrom(helmetOptions)
 appThree.register(fastifyHelmet, helmetOptions)
 
 // Plugin registered with helmet middlewares custom settings
@@ -68,10 +68,10 @@ const appFive = fastify()
 appFive.register(fastifyHelmet, { enableCSPNonces: true })
 
 appFive.get('/', function (_request, reply) {
-  expectType<{
+  expect(reply.cspNonce).type.toBe<{
     script: string;
     style: string;
-  }>(reply.cspNonce)
+  }>()
 })
 
 // Plugin registered with `enableCSPNonces` option and custom CSP settings
@@ -87,29 +87,31 @@ appSix.register(fastifyHelmet, {
 })
 
 appSix.get('/', function (_request, reply) {
-  expectType<{
+  expect(reply.cspNonce).type.toBe<{
     script: string;
     style: string;
-  }>(reply.cspNonce)
+  }>()
 })
 
-const csp = fastifyHelmet.contentSecurityPolicy
-expectType<typeof helmet.contentSecurityPolicy>(csp)
+expect(fastifyHelmet.contentSecurityPolicy).type.toBe(helmet.contentSecurityPolicy)
 
 // Plugin registered with `global` set to `true`
 const appSeven = fastify()
 appSeven.register(fastifyHelmet, { global: true })
 
 appSeven.get('/route-with-disabled-helmet', { helmet: false }, function (_request, reply) {
-  expectType<typeof helmet>(reply.helmet())
+  expect(reply.helmet()).type.toBe(helmet)
 })
 
-expectError(
-  appSeven.get('/route-with-disabled-helmet', {
+appSeven.get(
+  '/route-with-disabled-helmet',
+  {
+    // @ts-expect-error: Type 'string' is not assignable to type 'false | Omit<FastifyHelmetOptions, "global">'
     helmet: 'trigger a typescript error'
-  }, function (_request, reply) {
-    expectType<typeof helmet>(reply.helmet())
-  })
+  },
+  function (_request, reply) {
+    expect(reply.helmet()).type.toBe(helmet)
+  }
 )
 
 // Plugin registered with `global` set to `false`
@@ -117,7 +119,7 @@ const appEight = fastify()
 appEight.register(fastifyHelmet, { global: false })
 
 appEight.get('/disabled-helmet', function (_request, reply) {
-  expectType<typeof helmet>(reply.helmet(helmetOptions))
+  expect(reply.helmet(helmetOptions)).type.toBe(helmet)
 })
 
 const routeHelmetOptions = {
@@ -148,37 +150,34 @@ const routeHelmetOptions = {
     }
   }
 }
-expectAssignable<FastifyHelmetRouteOptions>(routeHelmetOptions)
+expect(routeHelmetOptions).type.toBeAssignableTo<FastifyHelmetRouteOptions>()
 
 appEight.get('/enabled-helmet', routeHelmetOptions, function (_request, reply) {
-  expectType<typeof helmet>(reply.helmet())
-  expectType<{
+  expect(reply.helmet()).type.toBe(helmet)
+  expect(reply.cspNonce).type.toBe<{
     script: string;
     style: string;
-  }>(reply.cspNonce)
+  }>()
 })
 
 appEight.get('/enable-framegard', {
   helmet: { frameguard: true }
 }, function (_request, reply) {
-  expectType<typeof helmet>(reply.helmet())
-  expectType<{
+  expect(reply.helmet()).type.toBe(helmet)
+  expect(reply.cspNonce).type.toBe<{
     script: string;
     style: string;
-  }>(reply.cspNonce)
+  }>()
 })
 
-// Plugin registered with an invalid helmet option
-const appThatTriggerAnError = fastify()
-expectError(
-  appThatTriggerAnError.register(fastifyHelmet, {
-    thisOptionDoesNotExist: 'trigger a typescript error'
-  })
-)
+fastify().register(fastifyHelmet, {
+  // @ts-expect-error: No overload matches this call
+  thisOptionDoesNotExist: 'trigger a typescript error'
+})
 
 // fastify-helmet instance is using the FastifyHelmetOptions options
-expectType<
+expect(fastifyHelmet).type.toBe<
   FastifyPluginAsync<FastifyHelmetOptions> & {
     contentSecurityPolicy: typeof helmet.contentSecurityPolicy;
   }
->(fastifyHelmet)
+>()
