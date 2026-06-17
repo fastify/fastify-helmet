@@ -70,7 +70,7 @@
     "tstyche": "^7.0.0"
   },
   "dependencies": {
-    "fastify-plugin": "^5.0.0",
+    "fastify-plugin": "^6.0.0",
     "helmet": "^8.0.0"
   },
   "publishConfig": {
