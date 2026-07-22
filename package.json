@@ -1,6 +1,6 @@
 {
   "name": "@fastify/helmet",
-  "version": "13.0.2",
+  "version": "13.1.0",
   "description": "Important security headers for Fastify",
   "main": "index.js",
   "type": "commonjs",
@@ -30,7 +30,7 @@
   "contributors": [
     {
       "name": "Tomas Della Vedova",
-      "url": "http://delved.org"
+      "url": "https://delvedor.dev"
     },
     {
       "name": "Manuel Spigolon",
@@ -62,7 +62,7 @@
     }
   ],
   "devDependencies": {
-    "@types/node": "^25.0.3",
+    "@types/node": "^26.0.0",
     "c8": "^11.0.0",
     "eslint": "^9.17.0",
     "fastify": "^5.0.0",
@@ -70,7 +70,7 @@
     "tstyche": "^7.0.0"
   },
   "dependencies": {
-    "fastify-plugin": "^5.0.0",
+    "fastify-plugin": "^6.0.0",
     "helmet": "^8.0.0"
   },
   "publishConfig": {

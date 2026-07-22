@@ -4,7 +4,7 @@
 [![NPM version](https://img.shields.io/npm/v/@fastify/helmet)](https://www.npmjs.com/package/@fastify/helmet)
 [![neostandard javascript style](https://img.shields.io/badge/code_style-neostandard-brightgreen?style=flat)](https://github.com/neostandard/neostandard)
 
-Important security headers for Fastify, using [helmet](https://npm.im/helmet).
+Important security headers for Fastify, using [helmet](https://www.npmjs.com/package/helmet).
 
 ## Install
 ```
@@ -50,7 +50,7 @@ fastify.listen({ port: 3000 }, err => {
 `@fastify/helmet` is a wrapper around `helmet` that adds an `'onRequest'` hook
 and a `reply.helmet` decorator.
 
-It accepts the same options as `helmet`. See [helmet documentation](https://helmetjs.github.io/).
+It accepts the same options as `helmet`. See [helmet documentation](https://helmet.js.org).
 
 ### Apply Helmet to all routes
 
