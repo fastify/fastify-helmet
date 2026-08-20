@@ -86,9 +86,36 @@ async function replyDecorators (request, reply, configuration, enableCSP) {
   }
 
   reply.helmet = function (opts) {
-    const helmetConfiguration = opts
+    let helmetConfiguration = opts
       ? Object.assign(Object.create(null), configuration, opts)
       : configuration
+
+    if (enableCSP === true && helmetConfiguration.contentSecurityPolicy !== false) {
+      const cspDirectives = helmetConfiguration.contentSecurityPolicy
+        ? helmetConfiguration.contentSecurityPolicy.directives
+        : helmet.contentSecurityPolicy.getDefaultDirectives()
+      const cspReportOnly = helmetConfiguration.contentSecurityPolicy
+        ? helmetConfiguration.contentSecurityPolicy.reportOnly
+        : undefined
+      const cspUseDefaults = helmetConfiguration.contentSecurityPolicy
+        ? helmetConfiguration.contentSecurityPolicy.useDefaults
+        : undefined
+
+      const { script: scriptCSPNonce, style: styleCSPNonce } = reply.cspNonce
+
+      const directives = { ...cspDirectives }
+
+      const scriptKey = Array.isArray(directives['script-src']) ? 'script-src' : 'scriptSrc'
+      directives[scriptKey] = Array.isArray(directives[scriptKey]) ? [...directives[scriptKey]] : []
+      directives[scriptKey].push(`'nonce-${scriptCSPNonce}'`)
+
+      const styleKey = Array.isArray(directives['style-src']) ? 'style-src' : 'styleSrc'
+      directives[styleKey] = Array.isArray(directives[styleKey]) ? [...directives[styleKey]] : []
+      directives[styleKey].push(`'nonce-${styleCSPNonce}'`)
+
+      const contentSecurityPolicy = { directives, reportOnly: cspReportOnly, useDefaults: cspUseDefaults }
+      helmetConfiguration = Object.assign(Object.create(null), helmetConfiguration, { contentSecurityPolicy })
+    }
 
     return helmet(helmetConfiguration)(request.raw, reply.raw, done)
   }

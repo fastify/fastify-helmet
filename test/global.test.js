@@ -1026,3 +1026,187 @@ test('It should be able to catch `helmet` errors with a fastify `onError` hook',
     'Content-Security-Policy received an invalid directive value for "default-src"'
   )
 })
+
+test('It should inject nonces when calling reply.helmet() manually with enableCSPNonces: true', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/test', async (request, reply) => {
+    t.assert.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce.script)
+    await reply.helmet()
+    return { nonce: reply.cspNonce.script }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/test'
+  })
+
+  t.assert.strictEqual(response.statusCode, 200)
+  const { nonce } = response.json()
+  t.assert.ok(response.headers['content-security-policy'].includes(`nonce-${nonce}`))
+})
+
+test('It should inject nonces when calling reply.helmet() manually with enableCSPNonces: true and custom CSP directives (array format)', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/test', async (request, reply) => {
+    t.assert.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce.script)
+    await reply.helmet({
+      contentSecurityPolicy: {
+        directives: {
+          'script-src': ["'self'"],
+          'style-src': ["'self'"]
+        }
+      }
+    })
+    return { nonce: reply.cspNonce.script }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/test'
+  })
+
+  t.assert.strictEqual(response.statusCode, 200)
+  const { nonce } = response.json()
+  t.assert.ok(response.headers['content-security-policy'].includes(`nonce-${nonce}`))
+})
+
+test('It should inject nonces when calling reply.helmet() manually with enableCSPNonces: true and custom CSP directives (camelCase format)', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/test', async (request, reply) => {
+    t.assert.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce.script)
+    await reply.helmet({
+      contentSecurityPolicy: {
+        directives: {
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"]
+        }
+      }
+    })
+    return { nonce: reply.cspNonce.script }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/test'
+  })
+
+  t.assert.strictEqual(response.statusCode, 200)
+  const { nonce } = response.json()
+  t.assert.ok(response.headers['content-security-policy'].includes(`nonce-${nonce}`))
+})
+
+test('It should inject nonces when calling reply.helmet() manually with enableCSPNonces: true and empty custom CSP directives', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/test', async (request, reply) => {
+    t.assert.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce.script)
+    await reply.helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"]
+        }
+      }
+    })
+    return { nonce: reply.cspNonce.script }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/test'
+  })
+
+  t.assert.strictEqual(response.statusCode, 200)
+  const { nonce } = response.json()
+  t.assert.ok(response.headers['content-security-policy'].includes(`nonce-${nonce}`))
+})
+
+test('It should inject nonces when calling reply.helmet() manually with enableCSPNonces: true, reportOnly and useDefaults but no directives', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/test', async (request, reply) => {
+    t.assert.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce.script)
+    await reply.helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        reportOnly: true
+      }
+    })
+    return { nonce: reply.cspNonce.script }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/test'
+  })
+
+  t.assert.strictEqual(response.statusCode, 200)
+  const { nonce } = response.json()
+  t.assert.ok(response.headers['content-security-policy-report-only'].includes(`nonce-${nonce}`))
+})
+
+test('It should not inject nonces when calling reply.helmet() manually and contentSecurityPolicy is false', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/test', async (request, reply) => {
+    t.assert.ok(reply.cspNonce)
+    t.assert.ok(reply.cspNonce.script)
+    await reply.helmet({
+      contentSecurityPolicy: false
+    })
+    return { nonce: reply.cspNonce.script }
+  })
+
+  const response = await fastify.inject({
+    method: 'GET',
+    path: '/test'
+  })
+
+  t.assert.strictEqual(response.statusCode, 200)
+  t.assert.strictEqual(response.headers['content-security-policy'], undefined)
+})
+
+
