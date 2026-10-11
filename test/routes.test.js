@@ -240,6 +240,32 @@ test('It should not add CSPNonce decorator when route `enableCSPNonces` option i
   t.assert.ok(cspCache.style)
 })
 
+test('It should inherit global enableCSPNonces on routes with custom helmet options', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+
+  await fastify.register(helmet, {
+    global: true,
+    enableCSPNonces: true
+  })
+
+  fastify.get(
+    '/custom',
+    { helmet: { frameguard: false } },
+    (_request, reply) => {
+      t.assert.ok(reply.cspNonce)
+      reply.send(reply.cspNonce)
+    }
+  )
+
+  const response = await fastify.inject({ method: 'GET', path: '/custom' })
+  const csp = response.json()
+  t.assert.ok(csp.script)
+  t.assert.ok(csp.style)
+  t.assert.ok(response.headers['content-security-policy'].includes(csp.script))
+})
+
 test('It should not set default directives when route useDefaults is set to `false`', async (t) => {
   t.plan(1)
 
