@@ -266,6 +266,40 @@ test('It should inherit global enableCSPNonces on routes with custom helmet opti
   t.assert.ok(response.headers['content-security-policy'].includes(csp.script))
 })
 
+test('It should inherit global enableCSPNonces on routes with custom helmet options when global is false', async (t) => {
+  t.plan(6)
+
+  const fastify = Fastify()
+
+  await fastify.register(helmet, {
+    global: false,
+    enableCSPNonces: true
+  })
+
+  fastify.get('/unconfigured', (_request, reply) => {
+    reply.send({ unconfigured: true })
+  })
+
+  fastify.get(
+    '/custom',
+    { helmet: { frameguard: false } },
+    (_request, reply) => {
+      t.assert.ok(reply.cspNonce)
+      reply.send(reply.cspNonce)
+    }
+  )
+
+  const unconfiguredResponse = await fastify.inject({ method: 'GET', path: '/unconfigured' })
+  t.assert.equal(unconfiguredResponse.statusCode, 200)
+  t.assert.equal(unconfiguredResponse.headers['content-security-policy'], undefined)
+
+  const customResponse = await fastify.inject({ method: 'GET', path: '/custom' })
+  const csp = customResponse.json()
+  t.assert.ok(csp.script)
+  t.assert.ok(csp.style)
+  t.assert.ok(customResponse.headers['content-security-policy'].includes(csp.script))
+})
+
 test('It should not set default directives when route useDefaults is set to `false`', async (t) => {
   t.plan(1)
 
