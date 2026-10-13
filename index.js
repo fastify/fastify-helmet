@@ -42,7 +42,8 @@ async function fastifyHelmet (fastify, options) {
       const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
       // We decorate the reply with a fallback to the route scoped helmet options
-      return replyDecorators(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
+      const isRouteCSPNonces = skipRoute ? false : (enableRouteCSPNonces ?? enableCSPNonces)
+      return replyDecorators(request, reply, mergedHelmetConfiguration, isRouteCSPNonces)
     }
 
     // We decorate the reply with a fallback to the global helmet options
@@ -61,7 +62,8 @@ async function fastifyHelmet (fastify, options) {
         // If route helmet options are set they overwrite the global helmet configuration
         const mergedHelmetConfiguration = Object.assign(Object.create(null), globalConfiguration, helmetRouteConfiguration)
 
-        return buildHelmetOnRoutes(request, reply, mergedHelmetConfiguration, enableRouteCSPNonces)
+        const isRouteCSPNonces = enableRouteCSPNonces ?? enableCSPNonces
+        return buildHelmetOnRoutes(request, reply, mergedHelmetConfiguration, isRouteCSPNonces)
       }
 
       return next()

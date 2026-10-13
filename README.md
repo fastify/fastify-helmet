@@ -167,6 +167,9 @@ fastify.get('/route-with-custom-helmet-configuration', {
 `@fastify/helmet` also allows CSP nonce generation, which can be enabled by passing `{ enableCSPNonces: true }` into the options.
 Retrieve the `nonces` through `reply.cspNonce`.
 
+Routes with a custom `helmet` configuration inherit the global `enableCSPNonces` setting.
+To disable nonces on a single route, pass `{ helmet: { enableCSPNonces: false } }`.
+
 > ℹ️ Note: This feature is implemented by this module and is not supported by `helmet`.
 > For using `helmet` only for csp nonces, see [example](#example---generate-by-helmet).
 
