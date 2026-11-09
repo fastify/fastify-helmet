@@ -557,3 +557,103 @@ test('It should forward `helmet` reply decorator and route specific errors to `f
   )
   t.assert.notDeepStrictEqual(actualResponseHeaders, notExpected)
 })
+
+test('It should throw an error when route helmet option is null', async (t) => {
+  t.plan(2)
+
+  const fastify = Fastify()
+  await fastify.register(helmet)
+
+  try {
+    fastify.get('/', { helmet: null }, () => {
+      return { message: 'ok' }
+    })
+  } catch (error) {
+    t.assert.ok(error)
+    t.assert.equal(
+      error.message,
+      'Unknown value for route helmet configuration'
+    )
+  }
+})
+
+test('It should reuse precompiled middleware across repeated requests and shared route option objects', async (t) => {
+  t.plan(7)
+
+  const fastify = Fastify()
+  const directives = {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'"]
+  }
+  const sharedRouteHelmet = {
+    enableCSPNonces: true,
+    frameguard: false,
+    contentSecurityPolicy: { directives }
+  }
+
+  await fastify.register(helmet, { global: false })
+
+  fastify.get('/one', { helmet: sharedRouteHelmet }, (_request, reply) => {
+    reply.send(reply.cspNonce)
+  })
+
+  fastify.get('/two', { helmet: sharedRouteHelmet }, (_request, reply) => {
+    reply.send(reply.cspNonce)
+  })
+
+  fastify.get('/manual', async (_request, reply) => {
+    await reply.helmet()
+    return { ok: true }
+  })
+
+  const r1 = await fastify.inject({ method: 'GET', path: '/one' })
+  const r2 = await fastify.inject({ method: 'GET', path: '/two' })
+  const r3 = await fastify.inject({ method: 'GET', path: '/one' })
+
+  const n1 = r1.json()
+  const n2 = r2.json()
+  const n3 = r3.json()
+
+  t.assert.notStrictEqual(n1.script, n2.script)
+  t.assert.notStrictEqual(n1.script, n3.script)
+  t.assert.ok(r1.headers['content-security-policy'].includes(`'nonce-${n1.script}'`))
+  t.assert.ok(r2.headers['content-security-policy'].includes(`'nonce-${n2.script}'`))
+  t.assert.deepStrictEqual(directives.scriptSrc, ["'self'"])
+
+  const m1 = await fastify.inject({ method: 'GET', path: '/manual' })
+  const m2 = await fastify.inject({ method: 'GET', path: '/manual' })
+  t.assert.strictEqual(m1.headers['x-frame-options'], 'SAMEORIGIN')
+  t.assert.strictEqual(m2.headers['x-frame-options'], 'SAMEORIGIN')
+})
+
+test('It should disable CSP header when contentSecurityPolicy is false and enableCSPNonces is true', async (t) => {
+  t.plan(4)
+
+  const fastify = Fastify()
+  await fastify.register(helmet, {
+    enableCSPNonces: true,
+    contentSecurityPolicy: false
+  })
+
+  fastify.get('/global-no-csp', (_request, reply) => {
+    return { nonce: reply.cspNonce }
+  })
+
+  fastify.get('/route-no-csp', {
+    helmet: {
+      enableCSPNonces: true,
+      contentSecurityPolicy: false
+    }
+  }, (_request, reply) => {
+    return { nonce: reply.cspNonce }
+  })
+
+  const res1 = await fastify.inject({ method: 'GET', path: '/global-no-csp' })
+  const res2 = await fastify.inject({ method: 'GET', path: '/route-no-csp' })
+
+  t.assert.strictEqual(res1.headers['content-security-policy'], undefined)
+  t.assert.strictEqual(res1.headers['x-frame-options'], 'SAMEORIGIN')
+  t.assert.strictEqual(res2.headers['content-security-policy'], undefined)
+  t.assert.strictEqual(res2.headers['x-frame-options'], 'SAMEORIGIN')
+})
