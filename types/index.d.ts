@@ -33,6 +33,7 @@ declare namespace fastifyHelmet {
     global?: boolean;
   } & NonNullable<HelmetOptions>
 
+  export const contentSecurityPolicy: typeof import('helmet').contentSecurityPolicy
   export const fastifyHelmet: FastifyHelmet
   export { fastifyHelmet as default }
 }
